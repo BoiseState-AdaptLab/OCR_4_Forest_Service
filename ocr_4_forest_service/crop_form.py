@@ -5,6 +5,7 @@ import cv2
 import os
 import string
 import json
+import shutil
 
 def main():
     path = None
@@ -41,11 +42,14 @@ def main():
             #cropping the image
             cropped_img = crop(img, x, y, w, h)
             
-
             #display the image to user
             if cropped_img is not None:
                 cv2.imshow(window_name, cropped_img)
                 cv2.imwrite('field_{:>02}.jpg'.format(i), cropped_img)
+
+                old_path = os.path.abspath('field_{:>02}.jpg'.format(i))
+                new_path = old_path[:-12] + "output/" 
+                shutil.move(old_path, new_path)
             else:
                 print("no image has been read")
             
