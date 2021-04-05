@@ -1,0 +1,34 @@
+ {
+	"entries": [
+		{
+			file_name: "0-1.jpeg",
+			class: "o"	
+		},
+
+       		{
+			 file_name: "0-2.jpeg",
+                         class: "o" 
+                },
+                          
+                {
+                         file_name: "0-3.jpeg",
+                         class: "D"
+                },
+  
+		{
+                         file_name: "0-4.jpeg",
+                         class: "O"
+                },
+
+		{
+                         file_name: "0-5.jpeg",
+                         class: "O"
+                },
+
+		
+
+              	]
+
+
+}             
+  
