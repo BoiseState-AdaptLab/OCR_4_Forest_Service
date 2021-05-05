@@ -323,7 +323,10 @@
                          "class": "S"
                 },
 
-                
+                {
+                         "file_name": "54P.jpeg",
+                         "class": "P"
+                },
 
                 {
                          "file_name": "55r.jpeg",
@@ -392,7 +395,7 @@
 
                 {
                          "file_name": "6-8.jpeg",
-                         "class": "O"
+                         "class": "6"
                 },
 
                 {
@@ -488,7 +491,7 @@
 
 
                 {
-                         "file_name": "76m.jpeg",
+                         "file_name": "76M.jpeg",
                          "class": "M"
                 },
 
