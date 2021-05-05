@@ -2,47 +2,47 @@
 	"entries": [
 		{
 			"file_name": "0-1.jpeg",
-			"class": "0"	
+			"class": "O"	
 		},
 
        		{
 			 "file_name": "0-2.jpeg",
-                         "class": "0" 
+                         "class": "O" 
                 },
                           
                 {
                          "file_name": "0-3.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
   
 		{
                          "file_name": "0-4.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
 
 		{
                          "file_name": "0-5.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
 
                 {
                          "file_name": "0-6.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
 
 	        {
                          "file_name": "0-7.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
 
                 {
                          "file_name": "0-8.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
 
                 {
                          "file_name": "0.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
 
                 {
@@ -116,11 +116,6 @@
                 },
 
                 {
-                         "file_name": "2-3.jpeg",
-                         "class": "2"
-                },
-
-                {
                          "file_name": "2.jpeg",
                          "class": "2"
                 },
@@ -136,7 +131,7 @@
                 },
 
                 {
-                         "file_name": "3-10.jpeg",
+                         "file_name": "3-1.jpeg",
                          "class": "3"
                 },
 
@@ -190,10 +185,7 @@
                          "class": "3"
                 },
 
-                {
-                         "file_name": "3a.jpeg",
-                         "class": "a"
-                },
+                
 
                 {
                          "file_name": "4-1.jpeg",
@@ -221,11 +213,7 @@
                          "class": "4"
                 },
 
-                {
-                         "file_name": "4-6.jpeg",
-                         "class": "4"
-                },
-
+                
                 {
                          "file_name": "4-7.jpeg",
                          "class": "4"
@@ -257,13 +245,13 @@
 
                 {
                          "file_name": "49s.jpeg",
-                         "class": "s"
+                         "class": "S"
                 },
 
 
                 {
                          "file_name": "4w.jpeg",
-                         "class": "w"
+                         "class": "W"
                 },
 
 
@@ -322,7 +310,7 @@
 
                 {
                          "file_name": "51o.jpeg",
-                         "class": "o"
+                         "class": "O"
                 },
 
                 {
@@ -335,10 +323,7 @@
                          "class": "S"
                 },
 
-                {
-                         "file_name": "54p.jpeg",
-                         "class": "p"
-                },
+                
 
                 {
                          "file_name": "55r.jpeg",
@@ -347,12 +332,12 @@
 
                 {
                          "file_name": "56o.jpeg",
-                         "class": "o"
+                         "class": "O"
                 },
 
                 {
                          "file_name": "57u.jpeg",
-                         "class": "u"
+                         "class": "U"
                 },
 
                 {
@@ -362,7 +347,7 @@
 
                 {
                          "file_name": "59c.jpeg",
-                         "class": "c"
+                         "class": "C"
                 },
 
                 {
@@ -407,7 +392,7 @@
 
                 {
                          "file_name": "6-8.jpeg",
-                         "class": "0"
+                         "class": "O"
                 },
 
                 {
@@ -432,13 +417,10 @@
 
                 {
                          "file_name": "63k.jpeg",
-                         "class": "k"
+                         "class": "K"
                 },
 
-                {
-                         "file_name": "64A.jpeg",
-                         "class": "A"
-                },
+                
 
                 {
                          "file_name": "65G.jpeg",
@@ -447,12 +429,12 @@
 
                 {
                          "file_name": "66s.jpeg",
-                         "class": "s"
+                         "class": "S"
                 },
 
                 {
                          "file_name": "67p.jpeg",
-                         "class": "p"
+                         "class": "P"
                 },
 
                 {
@@ -467,7 +449,7 @@
 
                 {
                          "file_name": "6o.jpeg",
-                         "class": "o"
+                         "class": "O"
                 },
 
                 {
@@ -489,7 +471,7 @@
 
                 {
                          "file_name": "73T.jpeg",
-                         "class": "I"
+                         "class": "T"
                 },
 
 
@@ -507,14 +489,78 @@
 
                 {
                          "file_name": "76m.jpeg",
-                         "class": "m"
+                         "class": "M"
                 },
 
 
                 {
                          "file_name": "77A.jpeg",
                          "class": "A"
-                }
+                },
+
+                {
+                        "file_name": "capitalB.png",
+                        "class": "B"
+               },
+
+               {
+                        "file_name": "capitalR.png",
+                        "class": "R"
+               },
+               {
+                        "file_name": "low-p.jpeg",
+                        "class": "P"
+               }, 
+                {
+                        "file_name": "low-e.png",
+                        "class": "e"
+               }, 
+         {
+                        "file_name": "low-7.png",
+                        "class": "7"
+               }, 
+        
+         {
+                        "file_name": "low-a.png",
+                        "class": "a"
+               }, 
+        
+         {
+                        "file_name": "low-w.png",
+                        "class": "W"
+               }, 
+         {
+                        "file_name": "low-6.png",
+                        "class": "6"
+               }, 
+         {
+                        "file_name": "low-3.png",
+                        "class": "3"
+               }, 
+         {
+                        "file_name": "cap-S.png",
+                        "class": "S"
+               }, 
+         {
+                        "file_name": "low-s.png",
+                        "class": "S"
+               }, 
+         {
+                        "file_name": "low-w2.png",
+                        "class": "W"
+               }, 
+         {
+                        "file_name": "low-o.png",
+                        "class": "O"
+               }, 
+         {
+                        "file_name": "cap-S2.png",
+                        "class": "S"
+               } 
+        
+        
+        
+        
 
         ]
 
