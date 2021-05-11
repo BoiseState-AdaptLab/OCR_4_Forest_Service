@@ -17,5 +17,5 @@ Step 3)
 The current preprocessing steps (GaussianBlur, THRESH_OTSU, GaussianBlur, cvtColor, Denoising) lead to
 an accuracy score above 85%.  
 
-
+The script named **gray.py** is used to make manual changes to the preprocessing of a single image, if necessary. 
  
