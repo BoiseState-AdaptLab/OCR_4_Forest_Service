@@ -1,0 +1,110 @@
+ {
+	"fields": [
+		{
+			"field": "WRITEUP NO.",
+			"width": 141,
+			"height": 29,
+			"coord_pixel": [120,60] 
+		},
+		{
+			"field": "PHOTO NO.",
+			"width": 136,
+			"height": 28,
+			"coord_pixel": [968,68]
+		},
+		{
+			"field": "FOREST",
+			"width": 195,
+			"height": 27,
+			"coord_pixel": [120,109]
+		},
+		{
+			"field": "RANGER DISTRICT",
+			"width": 231,
+			"height": 30,
+			"coord_pixel": [319,109]
+		},
+		{
+			"field": "ALLOTMENT",
+			"width": 266,
+			"height": 27,
+			"coord_pixel": [555, 113]
+		},
+		{
+			"field": "EXAMINER",
+			"width": 173,
+			"height": 25,
+			"coord_pixel": [825,116]
+		},
+		{
+			"field": "DATE",
+			"width": 102,
+			"height": 27,
+			"coord_pixel": [1002,116]
+		},
+		{
+			"field": "TRANSECT NO.",
+			"width": 149,
+			"height": 28,
+			"coord_pixel": [119,157]
+		},
+		{
+			"field": "PLOT SIZE",
+			"width": 93,
+			"height": 26,
+			"coord_pixel": [275,160]
+		},
+		{
+			"field": "PLOT INTERVAL",
+			"width": 174,
+			"height": 28,
+			"coord_pixel": [375,160]
+		},
+		{
+			"field": "TYPE DESIGNATION",
+			"width": 193,
+			"height": 28,
+			"coord_pixel": [555,160]
+		},
+		{
+			"field": "KIND OF LIVESTOCK",
+			"width": 172,
+			"height": 28,
+			"coord_pixel": [752,162]
+		},
+		{
+			"field": "SLOPE",
+			"width": 69,
+			"height": 25,
+			"coord_pixel": [928,164]
+		},
+		{
+			"field": "ASPECT",
+			"width": 100,
+			"height": 24,
+			"coord_pixel": [1003, 167]
+		},
+		{
+			"field": "LOCATION",
+			"width": 876,
+			"height": 34,
+			"coord_pixel": [120, 206]
+		},
+		{
+			"field": "ELEVATION",
+			"width": 101,
+			"height": 26,
+			"coord_pixel": [1002, 214]
+		}
+	
+		
+	
+	
+	
+	
+	]
+
+}
+
+
+
