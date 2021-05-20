@@ -15,8 +15,9 @@ from queue import LifoQueue
 
 
 def main():
-    preprocessed_img = img_preprocess()
-    find_char(preprocessed_img)
+    preprocessed_img, img, json_dict= img_preprocess()
+    json_data = find_char(preprocessed_img, img, json_dict)
+    create_json(json_data)
   
 
 #  This function opens an image and detects
@@ -25,11 +26,11 @@ def img_preprocess():
     #read data from JSON file
     f = open("fields.json")
     fields = json.load(f)
-
-    #if it doesn't exists already, create the 
-    # folder where the preprocessed images will go
-    if not os.path.exists('preprocessed'):
-        os.makedirs('preprocessed')
+    json_dict = {}  
+    # #if it doesn't exists already, create the 
+    # # folder where the preprocessed images will go
+    # if not os.path.exists('preprocessed'):
+    #     os.makedirs('preprocessed')
 
     directory = '/Users/florianaciaglia/Google Drive/AdaptLab/forestService/OCR_4_Forest_Service/char_detection/output'
 
@@ -48,168 +49,86 @@ def img_preprocess():
         blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
         ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
         blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
-        con_img = cv2.cvtColor(blurred, cv2.COLOR_GRAY2BGR)
-        dst = cv2.fastNlMeansDenoisingColored(con_img,None,10,10,7,21)
+        con_img = cv2.cvtColor( blurred, cv2.COLOR_GRAY2BGR)
+        dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
 
-        return dst
+        return dst, image, json_dict
 
 
-def find_char(dst):
-    max_x, max_y, min_x, min_y = 0, 0, 1000, 1000
+def find_char(dst, img, json_dict):
+    #  max_x, max_y, min_x, min_y 
+    max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
     active = False
-    stack = []
     im = Image.fromarray(dst)
     pixels = im.load()
+    
+    json_list = []
     x = 0
+    counter = 0
+    
+  
     #iterate through the pixels in dst
-    for x in range(im.size[0]): # for every pixel:
+    while (x < im.size[0]): # for every pixel:
+        y = 0
+        name = "obj_"
         #print("getting in hwew")
-        for y in range(im.size[1]):
-            #print("getting in here")
-            
-            #if the pixel is black
-            if pixels[x,y] == (0, 0, 0):
-                # do nothing
-                continue
-
-            else: #we found the first non-black pixel
-                max_x, max_y, min_x, min_y = explore_active(x, y, im, pixels, stack, max_x, max_y, min_x, min_y)
-                # 
-                # print("# max x: ", max_x)
-                # print("# max y: ", max_y)
-                # print("# min x: ", min_x)
-                # print("# min y: ", min_y)
+        while (y < im.size[1]):
+          
+            if pixels[x,y] != (0, 0, 0):
+                
+                max_x, min_x, max_y,  min_y = explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y)
+              
                 pixels[min_x, min_y] = (255, 0 , 0)
                 pixels[max_x, min_y] = (255, 0 , 0)
                 pixels[min_x, max_y] = (255, 0 , 0)
                 pixels[max_x, max_y] = (255, 0 , 0)
 
-        
-            
-        if max_x < im.size[0]-1:
-            x = max_x + 2
-            y = 0
-            # break
-
-        # print("# max x: ", max_x)
-        # print("# max y: ", max_y)
-        # print("# min x: ", min_x)
-        # print("# min y: ", min_y)
-    
-        # break
-        # print("before showing")
-    # print("# max x: ", max_x)
-    # print("# max y: ", max_y)
-    # print("# min x: ", min_x)
-    # print("# min y: ", min_y)
-    # #  marking the corner of each bbox red
-    # pixels[min_x, min_y] = (255, 0 , 255)
-    # pixels[max_x, min_y] = (255, 0 , 255)
-    # pixels[min_x, max_y] = (255, 0 , 255)
-    # pixels[max_x, max_y] = (255, 0 , 255)    
-    im.show()
-
-
-
-def explore_active(x, y, im, pixels, stack, max_x, max_y, min_x, min_y):
-    #  max_x, max_y, min_x, min_y
-   
-    # Initializing a values
-    
-    # max_x = 0
-    # max_y = 0
-    # min_x = 10000
-    # min_y = 10000
-    jump_size = 1
-
-    stack.append((x,y))
-
-    # while the stack holds tuples
-    while len(stack) != 0:
-        #print("Stack at beginning : ", stack)
-
-        pair = stack.pop(len(stack)-1)
-        print("pair: ", pair[0], pair[1])
-        # if the pixel is already green, we have already visited it
-        if pixels[pair[0], pair[1]] == (0, 255, 0):
-            break
-
-        # check to the right
-        if look_right(pair[0], pair[1], im, pixels, jump_size):
-            
-            if pair[0] < im.size[0]-jump_size:
-                stack.append((pair[0]+jump_size,pair[1]))
-                max_x, min_x, max_y, min_y = check_coord(pair[0]+jump_size, pair[1], max_x, min_x, max_y, min_y)
-     
-            elif pair[0] >= im.size[0]-jump_size and pair[0] < im.size[0]-1:    
-                stack.append((pair[0]+1,pair[1])) 
-                max_x, min_x, max_y, min_y = check_coord(pair[0]+1, pair[1], max_x, min_x, max_y, min_y)     
-            else:
-                stack.append((pair[0],pair[1]))
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
-                    
-            
-            print("coords: ", max_x, min_x, max_y, min_y )
-
-        # check down-wards
-        if look_down(pair[0], pair[1], im, pixels, jump_size):
-            
-
-            if pair[1] < im.size[1]-jump_size:
-                stack.append((pair[0],pair[1]+jump_size))
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1]+jump_size, max_x, min_x, max_y, min_y)
-            elif pair[1] >= im.size[1]-jump_size and pair[1] < im.size[1]-1:    
-                stack.append((pair[0],pair[1]+1))   
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1]+1, max_x, min_x, max_y, min_y)   
-            else:
-                stack.append((pair[0],pair[1]))
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
-
-            # max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
-            print("coords: ", max_x, min_x, max_y, min_y )
-
-        # check to the left 
-        if look_left(pair[0], pair[1], im, pixels, jump_size):
-
-            if pair[0] > jump_size:
-                stack.append((pair[0]-jump_size,pair[1]))  
-                max_x, min_x, max_y, min_y = check_coord(pair[0]-jump_size, pair[1], max_x, min_x, max_y, min_y)
-
-            elif pair[0] <= jump_size and pair[0] >= 0 :
-                stack.append((pair[0]-1,pair[1]))
-                max_x, min_x, max_y, min_y = check_coord(pair[0]-1, pair[1], max_x, min_x, max_y, min_y)
-            else:
-                stack.append((pair[0],pair[1]))
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
-
-            # max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
-            print("coords: ", max_x, min_x, max_y, min_y )
-
-        # check up-wards
-        if look_up(pair[0], pair[1], im, pixels, jump_size):
-            
-            print("in the look up if st")
-            if pair[1] > jump_size:
-                stack.append((pair[0],pair[1]-jump_size))  
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1]-jump_size, max_x, min_x, max_y, min_y)
-            elif pair[1] <= jump_size and pair[1] >= 0 :
-                stack.append((pair[0],pair[1]-1))
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1]-1, max_x, min_x, max_y, min_y)
-            else:
-                stack.append((pair[0],pair[1]))
-                max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
+                counter = counter + 1
+                name = name + str(counter)
+                json_list.append({'x': min_x, 
+                                'y': min_y, 
+                                'w': max_x-min_x,
+                                'h': max_y-min_y})
                 
-            # max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
-            print("coords: ", max_x, min_x, max_y, min_y )
-        
-        #turn the pixel green to sign it as visited
-        pixels[pair[0], pair[1]] = (0, 255, 0)
-        #print("Stack at end of loop: ", stack)
+                # json_coord[counter][name] = {}
 
-        # stack.remove(pair)
-        #im.show()print("Stack at the end: ", stack)
-    #print("Stack at exit: ", stack)
-    return max_x, max_y, min_x, min_y
+                # json_coord[counter][name]["x"] = min_x
+                # json_coord[counter][name]["y"] = min_y
+                # json_coord[counter][name]["w"] = max_x-min_x
+                # json_coord[counter][name]["h"] = max_y-min_y
+            
+                # print("json dict: ", json_coor)
+                y = 0
+
+                x = max_x + 2
+                if x > im.size[0]-1:
+                    y = im.size[1]
+                max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
+                # print("before the else: ", x, y)
+
+            else:
+                y = y + 2
+        
+        x = x + 2
+    
+    #All the characters have been identified
+    im.show()
+    print("json list: ", json_list)
+    json_dict[img] = json_list
+
+    for img in dict:
+        print("json dict: ", img)
+            
+        
+    # im.show()
+    return json_dict
+
+def create_json(json_data):
+    # store the data into a new json file
+    with open('cropped.json', 'w') as outfile:
+        json.dump(json_data, outfile)
+    
+
 
 def x_in_bound(x, im):
     if x >= 0 and x <= im.size[0]-1:
@@ -224,32 +143,65 @@ def y_in_bound(y, im):
     else:
         return False
 
+def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
+    # Initializing a values
+    stack = []
+    jump_size = 1
 
-def look_right(x, y, im, pixels, jump_size):
-    print("inside look right")
-    print(x)
-    print(y)
+    stack.append((x,y))
+    
+
+    # while the stack holds tuples
+    while len(stack) != 0:
+        # print("Stack at beginning : ", stack)
+
+        pair = stack.pop(len(stack)-1)
+        # print("pair: ", pair[0], pair[1])
+
+        # if the pixel is already green, we have already visited it
+        if x_in_bound(pair[0], im) and y_in_bound(pair[1], im) and pixels[pair[0], pair[1]] != (0, 255, 0):
+
+            max_x, min_x, max_y, min_y = check_coord(pair[0], pair[1], max_x, min_x, max_y, min_y)
+
+            # check to the right
+            if look(pair[0]+jump_size, pair[1], im, pixels):
+                stack.append((pair[0]+jump_size,pair[1]))
+
+            # check down-wards
+            if look(pair[0], pair[1]+jump_size, im, pixels):
+                stack.append((pair[0],pair[1]+jump_size))
+
+            # check to the left 
+            if look(pair[0]-jump_size, pair[1], im, pixels):
+                stack.append((pair[0]-jump_size,pair[1])) 
+
+            # check up-wards
+            if look(pair[0], pair[1]-jump_size, im, pixels):
+                stack.append((pair[0],pair[1]-jump_size)) 
+            
+            
+            #turn the pixel green to sign it as visited
+            pixels[pair[0], pair[1]] = (0, 255, 0)
+
+    
+    return max_x, min_x, max_y,  min_y
+
+
+
+
+def look(x, y, im, pixels):
 
     retVal = False
     # check if x and y are in bound
     if x_in_bound(x, im) and y_in_bound(y, im):
-        if x < im.size[0]-jump_size:
-            if pixels[x+jump_size, y] != (0, 0, 0):
-                retVal = True
-        elif x >= im.size[0]-jump_size and x < im.size[0]-1:       
-            if pixels[x+1, y] != (0, 0, 0): 
-                retVal = True
-        else:       
-            if pixels[x, y] != (0, 0, 0):
-             retVal = True
+        if pixels[x, y] != (0, 0, 0):
+            retVal = True
 
     return retVal
 
 
 def look_left(x, y, im, pixels, jump_size):
-    print("inside look left")
-    print(x)
-    print(y)
+    
     retVal = False
      
     if x_in_bound(x, im) and y_in_bound(y, im):
@@ -262,14 +214,12 @@ def look_left(x, y, im, pixels, jump_size):
                 retVal = True
         else:       
             if pixels[x, y] != (0, 0, 0):
-             retVal = True
+                retVal = True
 
     return retVal
 
 def look_down(x, y, im, pixels, jump_size):
-    print("inside look down")
-    print(x)
-    print(y)
+    
     
     retVal = False
     if x_in_bound(x, im) and y_in_bound(y, im):
@@ -281,15 +231,13 @@ def look_down(x, y, im, pixels, jump_size):
                 retVal = True
         else:       
             if pixels[x, y] != (0, 0, 0):
-             retVal = True
+                retVal = True
 
     return retVal
 
 
 def look_up(x, y, im, pixels, jump_size):
-    print("inside look up")
-    print(x)
-    print(y)
+    
     retVal = False
 
     if x_in_bound(x, im) and y_in_bound(y, im):
@@ -301,9 +249,9 @@ def look_up(x, y, im, pixels, jump_size):
                 retVal = True
         else:       
             if pixels[x, y] != (0, 0, 0):
-             retVal = True
+                retVal = True
 
-    print("retVal: " , retVal)
+    # print("retVal: " , retVal)
     return retVal
 
 
@@ -319,8 +267,8 @@ def check_coord(x, y, max_x, min_x, max_y, min_y):
    
   if y < min_y:
     min_y = y
-  
-  return max_x, max_y, min_x, min_y
+#   print("inside check coord: ", max_x, max_y, min_x, min_y)
+  return max_x, min_x, max_y,  min_y
 
 
 
