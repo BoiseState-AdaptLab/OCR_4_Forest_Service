@@ -27,15 +27,12 @@ def img_preprocess():
     f = open("fields.json")
     fields = json.load(f)
     json_dict = {}  
-    # #if it doesn't exists already, create the 
-    # # folder where the preprocessed images will go
-    # if not os.path.exists('preprocessed'):
-    #     os.makedirs('preprocessed')
-
+    
     directory = '/Users/florianaciaglia/Google Drive/AdaptLab/forestService/OCR_4_Forest_Service/char_detection/output'
 
     #for each image in the output directory:
     for image in os.listdir(directory):
+        # print("We are processing ", image)
         #set up the right string for the path 
         path = "output/" + image
 
@@ -48,11 +45,11 @@ def img_preprocess():
         #perform the image preprocessing stepss
         blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
         ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-        blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
-        con_img = cv2.cvtColor( blurred, cv2.COLOR_GRAY2BGR)
+        #blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
+        con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
         dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
 
-        return dst, image, json_dict
+    return dst, image, json_dict
 
 
 def find_char(dst, img, json_dict):
@@ -70,8 +67,7 @@ def find_char(dst, img, json_dict):
     #iterate through the pixels in dst
     while (x < im.size[0]): # for every pixel:
         y = 0
-        name = "obj_"
-        #print("getting in hwew")
+      
         while (y < im.size[1]):
           
             if pixels[x,y] != (0, 0, 0):
@@ -84,18 +80,11 @@ def find_char(dst, img, json_dict):
                 pixels[max_x, max_y] = (255, 0 , 0)
 
                 counter = counter + 1
-                name = name + str(counter)
+                # name = name + str(counter)
                 json_list.append({'x': min_x, 
                                 'y': min_y, 
                                 'w': max_x-min_x,
                                 'h': max_y-min_y})
-                
-                # json_coord[counter][name] = {}
-
-                # json_coord[counter][name]["x"] = min_x
-                # json_coord[counter][name]["y"] = min_y
-                # json_coord[counter][name]["w"] = max_x-min_x
-                # json_coord[counter][name]["h"] = max_y-min_y
             
                 # print("json dict: ", json_coor)
                 y = 0
@@ -113,20 +102,20 @@ def find_char(dst, img, json_dict):
     
     #All the characters have been identified
     im.show()
-    print("json list: ", json_list)
+    # print("json list: ", json_list)
     json_dict[img] = json_list
 
-    for img in dict:
-        print("json dict: ", img)
-            
-        
-    # im.show()
     return json_dict
+ 
 
 def create_json(json_data):
     # store the data into a new json file
-    with open('cropped.json', 'w') as outfile:
-        json.dump(json_data, outfile)
+    with open("cropped.json", "r+") as file:
+        data = json.load(file)
+        data.update(json_data)
+        file.seek(0)
+        json.dump(data, file)
+
     
 
 
