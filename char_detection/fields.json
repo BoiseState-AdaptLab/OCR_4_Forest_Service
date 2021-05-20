@@ -2,11 +2,17 @@
 	"fields": [
 		{
 			"field": "WRITEUP NO.",
-			"width": 142,
+			"width": 144,
 			"height": 28,
-			"coord_pixel": [119,61] 
-		}
-
+			"coord_pixel": [118,61] 
+		},
+		{
+                        "field": "PLOT SIZE", 
+                        "width": 95, 
+                        "height": 24,
+                        "coord_pixel": [275,161]
+                }
+	
 	]
 
 }
