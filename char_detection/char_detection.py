@@ -10,6 +10,7 @@ import cv2
 import json
 import shutil
 import os
+import ast
 import os.path
 from os import path
 from PIL import Image
@@ -24,10 +25,9 @@ def main():
 #  This function opens an image and detects
 #  each character in it
 def img_preprocess():
-    #read data from JSON file
-    f = open("fields.json")
-    fields = json.load(f)
-    json_dict = {}  
+   
+     
+    list_of_dict = []
     
     directory = '/Users/florianaciaglia/Google Drive/AdaptLab/forestService/OCR_4_Forest_Service/char_detection/output'
 
@@ -37,13 +37,14 @@ def img_preprocess():
         file = open("bbox_coord.json","r+")
         file.truncate(0)
         file.close()
-
+  
+    counter = 0
     #for each image in the output directory:
     for image in os.listdir(directory):
-        
+        json_dict = {} 
         #set up the right string for the path 
         path = "output/" + image
-
+        
         # read in the image in gray scale
         img = cv2.imread(path, 0) 
         if img is None:
@@ -58,9 +59,10 @@ def img_preprocess():
         dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
         json_data = find_char(dst, image, json_dict)
-        create_json(json_data)
+        list_of_dict.append(json_data)
 
-
+    create_json(list_of_dict)
+    
 
 
 def find_char(dst, img, json_dict):
@@ -116,7 +118,7 @@ def find_char(dst, img, json_dict):
         x = x + 2
     
     #All the characters have been identified
-    im.show()
+    # im.show()
     
     if valid_area(max_x, max_y, min_x, min_y):
         json_dict[img] = json_list
@@ -135,12 +137,14 @@ def valid_area(max_x, max_y, min_x, min_y):
     else:
         return False
 
-
-def create_json(json_data):
-    # store the data into a new json file
-    with open('bbox_coord.json', 'a') as outfile:
-        json.dump(json_data, outfile)
+ 
+def create_json(list_of_dict):
     
+    # store the data into a new json file
+    with open("bbox_coord.json", 'a') as outfile: 
+        json.dump(list_of_dict, outfile)
+    
+
 
     
 def x_in_bound(x, im):
