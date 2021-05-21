@@ -10,14 +10,15 @@ import cv2
 import json
 import shutil
 import os
+import os.path
+from os import path
 from PIL import Image
 from queue import LifoQueue
 
 
 def main():
-    preprocessed_img, img, json_dict= img_preprocess()
-    json_data = find_char(preprocessed_img, img, json_dict)
-    create_json(json_data)
+    img_preprocess()
+    # create_json(json_data)
   
 
 #  This function opens an image and detects
@@ -30,6 +31,13 @@ def img_preprocess():
     
     directory = '/Users/florianaciaglia/Google Drive/AdaptLab/forestService/OCR_4_Forest_Service/char_detection/output'
 
+    # if the output file has already been generated, 
+    # clean it out before appending to it
+    if os.path.exists("char_bbox.json"):
+        file = open("char_bbox.json","r+")
+        file.truncate(0)
+        file.close()
+
     #for each image in the output directory:
     for image in os.listdir(directory):
         # print("We are processing ", image)
@@ -41,24 +49,28 @@ def img_preprocess():
         if img is None:
             print(path)
             exit(1)
-
+        
         #perform the image preprocessing stepss
         blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
         ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
         #blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
         con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
         dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+        # print("we are still in preproc with ", image)
+        json_data = find_char(dst, image, json_dict)
+        create_json(json_data)
 
-    return dst, image, json_dict
+    # return dst, image, json_dict
 
 
 def find_char(dst, img, json_dict):
+    # print("we are in find char with ", img)
     #  max_x, max_y, min_x, min_y 
     max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
     active = False
     im = Image.fromarray(dst)
     pixels = im.load()
-    
+    json_dict.clear()
     json_list = []
     x = 0
     counter = 0
@@ -74,18 +86,19 @@ def find_char(dst, img, json_dict):
                 
                 max_x, min_x, max_y,  min_y = explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y)
               
-                pixels[min_x, min_y] = (255, 0 , 0)
-                pixels[max_x, min_y] = (255, 0 , 0)
-                pixels[min_x, max_y] = (255, 0 , 0)
-                pixels[max_x, max_y] = (255, 0 , 0)
+                if valid_area(max_x, max_y, min_x, min_y):
+                    pixels[min_x, min_y] = (255, 0 , 0)
+                    pixels[max_x, min_y] = (255, 0 , 0)
+                    pixels[min_x, max_y] = (255, 0 , 0)
+                    pixels[max_x, max_y] = (255, 0 , 0)
 
-                counter = counter + 1
-                # name = name + str(counter)
-                json_list.append({'x': min_x, 
-                                'y': min_y, 
-                                'w': max_x-min_x,
-                                'h': max_y-min_y})
-            
+                    counter = counter + 1
+                    # name = name + str(counter)
+                    json_list.append({'x': min_x, 
+                                    'y': min_y, 
+                                    'w': max_x-min_x,
+                                    'h': max_y-min_y})
+                # print("print list: ", json_list)
                 # print("json dict: ", json_coor)
                 y = 0
 
@@ -103,22 +116,35 @@ def find_char(dst, img, json_dict):
     #All the characters have been identified
     im.show()
     # print("json list: ", json_list)
-    json_dict[img] = json_list
-
+    if valid_area(max_x, max_y, min_x, min_y):
+        json_dict[img] = json_list
+    # print("json_dict: ", json_dict)
     return json_dict
  
 
+def valid_area(max_x, max_y, min_x, min_y):
+    # calculate the area of the bbox to 
+    # minimize noise
+    width = max_x - min_x
+    height = max_y - min_y
+    area = width * height
+    if area > 100:
+        return True
+    else:
+        return False
+
 def create_json(json_data):
     # store the data into a new json file
-    with open("cropped.json", "r+") as file:
-        data = json.load(file)
-        data.update(json_data)
-        file.seek(0)
-        json.dump(data, file)
-
+    with open('char_bbox.json', 'a') as outfile:
+        json.dump(json_data, outfile)
+    # with open("cropped.json", "r+") as file:
+    #     data = json.load(file)
+    #     data.update(json_data)
+    #     file.seek(0)
+    #     json.dump(data, file)
     
 
-
+    
 def x_in_bound(x, im):
     if x >= 0 and x <= im.size[0]-1:
         return True
