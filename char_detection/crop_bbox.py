@@ -29,32 +29,20 @@ def main():
     # load the json file
     json_file = open('bbox_coord.json')
     fields = json.load(json_file)
-    # print(type(fields))
-    # print(fields)
+  
     for dict in fields:
-        # print("type od dicts: ", type(dict))
-        # print(dict)
-        # print(" ")
-        # print("the key is: ", dict.keys())
+     
         key = dict.keys()
         # we only get the key
         new_d = [str(key) for key in key]
-        # print(new_d[0])
+       
         field_name = dir + new_d[0]
-        # print(field_name)
+
         # open form as an image
         img = cv2.imread(field_name)
         
         for boxes in dict.values():
-            # box is the list of bbox in one field image
-            print(boxes)
-            # print(box['x'])
-            print("type of box: ", type(boxes))
             for box in boxes:
-                print("x: ", box['x'])
-                print("y: ", box['y'])
-                print("w: ", box['w'])
-                print("h: ", box['h'])
 
                 x = box['x']
                 y = box['y']
@@ -69,19 +57,13 @@ def main():
                     cv2.imshow(window_name, cropped_img)
                     cv2.imwrite('box_{num}.jpg'.format(num = i), cropped_img)
 
-                    #cv2.waitKey(0)
-                    #cv2.destroyAllWindows()
                     old_path = os.path.abspath('box_{num}.jpg'.format(num = i))
-                    new_path = old_path[:-12] + "/output/"
+                    new_path = old_path[:-10] + "/single_chars/"
                     shutil.move(old_path, new_path)
                 else:
                     print("no image has been read")
 
-                i += 1
-                # cv2.waitKey(0)
-                # cv2.destroyAllWindows()
-                # cv2.destroyWindow(window_name)
-                # cv2.waitKey(10)
+                i = i + 1 
 
             json_file.close()
     exit(0)
