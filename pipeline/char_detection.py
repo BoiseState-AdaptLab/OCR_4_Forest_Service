@@ -1,36 +1,39 @@
 # Author: Floriana Ciaglia
 # Date: May 14th, 2021
 
-# This program attempts to create a bounding box around a discrete letter by:
+# This program creates a bounding box around a discrete letter by:
 #       - take a field image as an input
 #       - iterate through each pixel in the image
 #       - keep track of max x, max y, min x, min y
 
+# Generates a JSON file called bbox_coord.json the coordinates of each detected bounding box
+
 import cv2
 import json
-import shutil
 import os
-import ast
 import os.path
 from os import path
 from PIL import Image
 from queue import LifoQueue
 
-
+"""
+Definition of the main fuction
+"""
 def main():
     img_preprocess()
     
   
 
-#  This function opens an image and detects
-#  each character in it
+"""
+Performs the image preprocessing on the field image 
+before bounding boxes identification
+"""
 def img_preprocess():
+    DIR = "fields/"
 
     # this is the list where 
     # each images data is stored 
     list_of_dict = []
-    
-    directory = '/Users/florianaciaglia/Google Drive/AdaptLab/forestService/OCR_4_Forest_Service/char_detection/output'
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -41,10 +44,10 @@ def img_preprocess():
   
     # counter = 0
     #for each image in the output directory:
-    for image in os.listdir(directory):
+    for image in os.listdir(DIR):
         json_dict = {} 
         #set up the right string for the path 
-        path = "output/" + image
+        path = DIR + image
         
         # read in the image in gray scale
         img = cv2.imread(path, 0) 
@@ -66,12 +69,16 @@ def img_preprocess():
     
 
 
+"""
+Iterates through the image until it finds a character. 
+It explores the character to find its max_x, min_x, max_y, min_y
+@return dictionary of data to populate the json file
+"""
 def find_char(dst, img, json_dict):
      
     max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
     json_list = []
     x = 0
-    # counter = 0
 
     # Open the image using the PIL library
     im = Image.fromarray(dst)
@@ -119,15 +126,17 @@ def find_char(dst, img, json_dict):
         x = x + 2
     
     #All the characters have been identified
-    # im.show()
-    # im.save("field_8.png")
-    # exit(0)
+  
     if valid_area(max_x, max_y, min_x, min_y):
         json_dict[img] = json_list
     
     return json_dict
  
 
+"""
+Accepts only the areas that are bigger than 100
+@return boolean
+"""
 def valid_area(max_x, max_y, min_x, min_y):
     # calculate the area of the bbox to 
     # minimize noise
@@ -140,6 +149,9 @@ def valid_area(max_x, max_y, min_x, min_y):
         return False
 
  
+"""
+Creates the json file with the bbox coordinates
+"""
 def create_json(list_of_dict):
     
     # store the data into a new json file
@@ -148,13 +160,20 @@ def create_json(list_of_dict):
     
 
 
-    
+"""
+Checks the x axis boundary
+@return boolean
+"""    
 def x_in_bound(x, im):
     if x >= 0 and x <= im.size[0]-1:
         return True
     else:
         return False
 
+"""
+Checks the y axis boundary
+@return boolean
+"""
 def y_in_bound(y, im):
   
     if y >= 0 and y <= im.size[1]-1:
@@ -163,6 +182,10 @@ def y_in_bound(y, im):
         return False
 
 
+"""
+Loops through all the pixels in the stack and colors them green when visited
+@return min and max coordinates
+"""
 def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
     # Initializing a values
     stack = []
@@ -204,6 +227,9 @@ def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
     return max_x, min_x, max_y,  min_y
 
 
+"""
+Looks if the neighbor pixels is available
+"""
 def look(x, y, im, pixels):
 
     retVal = False
@@ -215,6 +241,9 @@ def look(x, y, im, pixels):
     return retVal
 
 
+"""
+Updates the max and min coordinates
+"""
 def check_coord(x, y, max_x, min_x, max_y, min_y):
   if x > max_x:
     max_x = x
@@ -232,6 +261,8 @@ def check_coord(x, y, max_x, min_x, max_y, min_y):
 
 
 
-# main function
+"""
+Main function declaration
+"""
 if __name__ == '__main__':
     main()
