@@ -93,26 +93,15 @@ def crop(image, json_file):
             # cv2.imshow(window_name, cropped_img)
             cv2.imwrite('field_{num}.jpg'.format(num = i), cropped_img)
 
-            #cv2.waitKey(0)
-            #cv2.destroyAllWindows()
             old_path = os.path.abspath('field_{num}.jpg'.format(num = i))
-          
-            if i < 10:
-                new_path = old_path[:-12] + "/fields/" + old_path[89:]
-                shutil.move(old_path, new_path)
-            else:
-               
-                new_path = old_path[:-13] + "/fields/" + old_path[89:]
-                shutil.move(old_path, new_path)
+            new_path = old_path[:-12] + "/fields/" + old_path[89:]
+            shutil.move(old_path, new_path)
+    
 
         else:
             print("Error: no image has been read.")
 
-        i += 1
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-        #cv2.destroyWindow(window_name)
-        #cv2.waitKey(10)
+        i = i + 1 
 
 
     
