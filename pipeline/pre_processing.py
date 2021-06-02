@@ -1,5 +1,6 @@
 # Author: Joshua Soutelo Vieira
 # Date: 06/01/2021
+# Usage: python pre_processing.py input_folder output_folder [--save]
 
 """
 This file takes single character cropped images as input. Then, some runs 
