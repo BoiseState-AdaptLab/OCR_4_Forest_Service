@@ -1,9 +1,15 @@
 .DS_Store
+high_res/.DS_Store
+char_detection/.DS_Store
 char_detection/output/
 char_detection/single_chars/
 char_detection/preprocessed/
 ocr_4_forest_service/output/
 ocr_4_forest_service/preprocessed/
+ocr_4_forest_service/src/.ipynb_checkpoints/
 high_res/output/
 high_res/preprocessed/
 high_res/.ipynb_checkpoints/
+pipeline/fields/
+pipeline/preprocessed/
+pipeline/single_chars/
