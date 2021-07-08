@@ -58,8 +58,8 @@ def img_preprocess():
         #perform the image preprocessing stepss
         blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
         ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-        blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
-        con_img = cv2.cvtColor(blurred, cv2.COLOR_GRAY2BGR)
+        # blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
+        con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
         dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
         json_data = find_char(dst, image, json_dict)
