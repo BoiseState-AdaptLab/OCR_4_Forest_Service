@@ -1,6 +1,11 @@
 #!/usr/bin/env python
+# This script attempts to align an image to its corresponding template.
 # Author: Sandra Busch
-# Date: June 16, 2021
+# Source: OCR with OpenCV, Tesseract, and Python
+#   OCR Practitioner Bundle, 1st Edition (version 1.0)
+#   Chapter 6 Image/Document Alignment and Registration
+# Date: July 1, 2021
+
 import os
 import cv2
 import numpy as np
@@ -10,7 +15,7 @@ import imutils
 def main():
     image_path = None
     template_path = None
-    max_features = 1000
+    max_features = 2000
     keep_percent = 0.2
 
     # prompt user for input
@@ -34,7 +39,7 @@ def main():
         aligned = align_images(image, template, max_features, keep_percent)
         cv2.imwrite('alignedImage.jpg', aligned)
 
-        # show image overlay
+        # show image overlay to check accuracy of alignment
         output = overlay_images(aligned, template)
         cv2.imshow("Image Alignment Overlay", output)
         cv2.waitKey(0)
@@ -60,18 +65,19 @@ def align_images(image, template, max_features, keep_percent):
     # the "more similar" the features are)
     matches = sorted(matches, key=lambda x: x.distance)
 
-    # keep only the top matches
+    # keep only the top % of matches
     keep = int(len(matches) * keep_percent)
     matches = matches[:keep]
 
-    # check to see if we should visualize the matched keypoints
-    #matchedVis = cv2.drawMatches(image, kpsA, template, kpsB, matches, None)
-    #matchedVis = imutils.resize(matchedVis, width=1000)
+    # visualize the matched keypoints
+    # uncomment this block to see the matched keypoints visualized
+    # matchedVis = cv2.drawMatches(image, kpsA, template, kpsB, matches, None)
+    # matchedVis = imutils.resize(matchedVis, width=1000)
     # cv2.imshow("Matched Keypoints", matchedVis)
     # cv2.waitKey(0)
 
     # allocate memory for the keypoints (x,y-coordinates) from the
-    # top matches -- we'll use these coordinates to compute our
+    # top matches -- we'll use these coordinates to compute the
     # homography matrix
     ptsA = np.zeros((len(matches), 2), dtype="float")
     ptsB = np.zeros((len(matches), 2), dtype="float")
