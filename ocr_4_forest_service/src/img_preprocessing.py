@@ -1,16 +1,20 @@
-# This script preprocesses the single letter images from the Forest Service Form. 
 # Author: Floriana Ciaglia
 # Date: May 1st, 2021
+# This script preprocesses the single letter images from the Forest Service Form and create 
+# the csv file that will work as input for the OCR model. 
+
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import json
 import os
 from os import path 
+from PIL import Image
+import csv
 
-def main():
+def img_preprocessing():
   #read data from JSON file
-  f = open('testingData.json')
+  f = open("../high_res.json")
 
   #returns JSON object as a dictionary
   data = json.load(f)
@@ -27,8 +31,8 @@ def main():
 
   # Iterating through the json
   # list and populating the dict
-  for entry in data['entries']:
-    data_dict[entry['file_name']] = entry['class']
+  for entry in data['character']:
+    data_dict[entry['img']] = entry['class']
     
 
   for clas in classifications:
@@ -36,77 +40,32 @@ def main():
     counter = counter + 1
 
   names = [name for name in data_dict]
-  labels = [label for label in class_dict]
+  print("names: ", names)
+  # labels = [label for label in class_dict]
+
+  # open and clean the cvs file up so
+  # that is it ready for a fresh set of data points
+  file = open("test_data.csv","w")
+  file.truncate(0)
+  file.close()
 
   #if it doesn't exists already, create the 
   # folder where the preprocessed images will go
   if not os.path.exists('preprocessed'):
     os.makedirs('preprocessed')
 
+  location = 0
   for image in names:
     #set up the right string for the path 
-    path = "images/" + image
+    path = "single_chars/" + image
     # read in the image in gray scale
     img = cv2.imread(path, 0) 
     if img is None:
       print(path)
       exit(1)
-    #perform Gaussinan blur on the image
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-   
-    #create a histogram on the images colors
-    hist = plt.hist(blurred.ravel(), 256, [0,256])
-   
-    # THIS SECTION MIGHT NOT BE NECESSARY IN THE FUTURE. 
-    ########################################################
-    # 25% of 28x28 pixels (784) is 196 pixels.
-    # iterate through the first 196 pixels and
-    # add up their x values.
-    x_value = {}
-    counter = 0
-    add = 0
-    
-    # hist is a tuple. We are only
-    # interested in the first field
-    # which contains the x values
-    for item in hist[0]:
-      x_value[counter] = item
-      counter = counter + 1
-    
-    # turn the dict to a list to iterate through it
-    x_list = list(x_value.values())
 
-    for i in x_list:
-      #196 is the 25% mark
-      if add < 196:
-        add = add + i
-      else:
-        # we want to know at what 
-        # position we reached 25%
-        adds = i
-        break
-
-    # create and populate the list of values
-    # that match a specific x. 
-    pos = []
-    for i, x in x_value.items():
-      if x == adds:
-        pos.append(i)
-
-    # taking the average of the values in pos[]
-    # to estimate a good thresh value. 
-    thresh_num = 0
-    for i in pos:
-        thresh_num = thresh_num + i
-    
-    thresh_num = int(thresh_num / len(pos))
-    ######################################################
-   
-    ret, thresh = cv2.threshold(img, 160, 255, cv2.THRESH_BINARY_INV)
-    #cv2.imshow("thresholded", thresh)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
-
+    # blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
     #cv2.imshow("Blurred", blurred)
     #cv2.waitKey(0)
@@ -117,10 +76,84 @@ def main():
     #cv2.imshow("dst", dst)
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
-  
+    resized = cv2.resize(dst, (28,28))
+
     end_path = "preprocessed/" + image
-    cv2.imwrite(end_path, dst)
+    cv2.imwrite(end_path, resized)
+
+    # we need to save the image using 
+    # the pillow library to iterate through
+    # its pixels
+    im = Image.fromarray(img)
+
+    #At this point, the image is ready
+    #list of RGB values for each pixel in the image
+    pix = []
+    #classification in number
+    classi = data_dict[image]
+    numeric_class = class_dict[classi]
+
+    #the first column in the csv file is the classification
+    pix.append(numeric_class)
+    #pix.append(label_dict[labels[location]])
+  
+
+    #iterate through each pixel in the image and store its RBG value into a list
+    for x in range(28):
+        for y in range(28):
+            rbg_val = im.getpixel((x,y))
+            pix.append(rbg_val)
+  
+    with open('test_data.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(pix)
+        file.close()
+    location = location + 1
+
+  
+  # #iterate through each image in images/
+  # for image in names:
+  #   # read the image in
+  #   my_path = "preprocessed/" + image
+  #   original = cv2.imread(my_path,0)
+  #   if original is None:
+  #     print("Cannot find the image")
+    
+  #   # make sure it's the right shape
+  #   img = cv2.resize(original, (28,28))
+
+  #   # we need to save the image using 
+  #   # the pillow library to iterate through
+  #   # its pixels
+  #   im = Image.fromarray(img)
+  #   #new_name = "images/" + image
+  #   #im.save(new_name, 'JPEG')
+  #   #img = Image.open(new_name)
+    
+  #   #At this point, the image is ready
+  #   #list of RGB values for each pixel in the image
+  #   pix = []
+  #   #classification in number
+  #   classi = data_dict[image]
+  #   numeric_class = class_dict[classi]
+
+  #   #the first column in the csv file is the classification
+  #   pix.append(numeric_class)
+  #   #pix.append(label_dict[labels[location]])
+  
+
+  #   #iterate through each pixel in the image and store its RBG value into a list
+  #   for x in range(28):
+  #       for y in range(28):
+  #           rbg_val = im.getpixel((x,y))
+  #           pix.append(rbg_val)
+  
+  #   with open('test_data.csv', 'a', newline='') as file:
+  #       writer = csv.writer(file)
+  #       writer.writerow(pix)
+  #       file.close()
+  #   location = location + 1
 
 #main function
-if __name__ == '__main__':
-  main()
+# if __name__ == '__main__':
+#   main()
