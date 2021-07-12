@@ -13,3 +13,5 @@ high_res/.ipynb_checkpoints/
 pipeline/fields/
 pipeline/preprocessed/
 pipeline/single_chars/
+pipeline/alignedImage.jpg
+pipeline/src/__pycache__/
