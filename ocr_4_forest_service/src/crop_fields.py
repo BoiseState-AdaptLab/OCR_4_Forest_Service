@@ -94,7 +94,7 @@ def crop(image, json_file):
             cv2.imwrite('field_{num}.jpg'.format(num = i), cropped_img)
 
             old_path = os.path.abspath('field_{num}.jpg'.format(num = i))
-            new_path = old_path[:-12] + "/fields/" + old_path[93:]
+            new_path = old_path[:-12] + "/fields/" + old_path[101:]
             shutil.move(old_path, new_path)
     
 

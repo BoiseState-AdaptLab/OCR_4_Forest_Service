@@ -12,7 +12,7 @@ from os import path
 from PIL import Image
 import csv
 
-def main():
+def img_preprocessing():
   #read data from JSON file
   f = open("high_res.json")
 
@@ -40,7 +40,8 @@ def main():
     counter = counter + 1
 
   names = [name for name in data_dict]
-  labels = [label for label in class_dict]
+  # print("names: ", names)
+  # labels = [label for label in class_dict]
 
   # open and clean the cvs file up so
   # that is it ready for a fresh set of data points
@@ -88,7 +89,6 @@ def main():
     #At this point, the image is ready
     #list of RGB values for each pixel in the image
     pix = []
-    
     #classification in number
     classi = data_dict[image]
     numeric_class = class_dict[classi]
@@ -155,5 +155,5 @@ def main():
   #   location = location + 1
 
 #main function
-if __name__ == '__main__':
-  main()
+# if __name__ == '__main__':
+#   main()
