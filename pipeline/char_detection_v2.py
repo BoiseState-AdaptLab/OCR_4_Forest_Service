@@ -1,13 +1,66 @@
 # Author: Joshua Soutelo Vieira
 # Date: 06-28-2021
 
+# Chain of responsability pattern https://refactoring.guru/design-patterns/chain-of-responsibility/python/example#example-0
+import os
+import sys
 from abc import ABC, abstractmethod
 import json
 
 import cv2
+import numpy as np
 from PIL import Image
 
 
+DIR = "fields/"
+OUTPUT_FILE_NAME = "bbox_coord.json"
+
+# ---- helper functions ----
+def grab_fields_coords(coords_json):
+  """Read JSON file containing all fields coordinates."""
+  with open(coords_json, "r") as f:
+    content = json.loads(f.read())
+
+  return content 
+
+def grab_fields(directory):
+  try:
+    return os.listdir(directory)
+  except FileNotFoundError:
+    print(f"FATAL ERROR. The folder {directory} was not found.")
+    sys.exit(-1)
+  """
+  Grab all the fields from a form image.
+    
+  Parameters
+  ----------
+  form_img : array
+    3d-array representing the whole form image
+  coords : 
+    JSON file containing the coordinates of the fields
+
+  Return
+  ------
+  to_ret : dict
+    For each field name holds a 3d-array representing that field as an image
+  """
+  to_ret = {}
+  fields = grab_fields_coords(coords)['fields']
+  
+  for field in fields:
+    name = field['field']
+    x = field['coord_pixel'][0]
+    y = field['coord_pixel'][1]
+    w = field['width']
+    h = field['height']
+    form_field = form_img[y:y+h, x:x+w]
+    to_ret[name] = form_field
+
+  return to_ret
+# --------------------------
+
+
+# ---- chain of responsability interfaces ----
 class Handler(ABC):
   """
   The Handler interface declares a method for building the chain of handlers.
@@ -32,7 +85,7 @@ class AbstractHandler(Handler):
   def set_next(self, handler: Handler) -> Handler:
     self._next_handler = handler
     # Returning a handler from here will let us link handlers in a convenient
-    # way like this: 
+    # way like this: color_to_gray.set_next(threshold) 
     return handler
 
   @abstractmethod
@@ -41,10 +94,15 @@ class AbstractHandler(Handler):
       return self._next_handler.handle(request)
 
     return request
+# --------------------------------------------
 
 
-# ---- handler implementations ----
 class ChangeColorImageHandler(AbstractHandler):
+  """Handler implementation that changes the color of an image.
+  
+  Attributes:
+    code: An intenger that represents the color changing operation
+  """
   
   def __init__(self, code):
     self.code = code
@@ -56,6 +114,13 @@ class ChangeColorImageHandler(AbstractHandler):
 
    
 class ThresholdImageHandler(AbstractHandler):
+  """Handler implementation that performs a threshold operation to an image.
+  
+  Attributes:
+    thresh: A number 
+    maxval: 
+    type:
+  """
   
   def __init__(self, thresh, maxval, type):
     self.thresh = thresh
@@ -71,11 +136,11 @@ class ThresholdImageHandler(AbstractHandler):
 class WordDetectionHanlder(AbstractHandler):
   
   def handle(self, request):
-    output = self.find_char(request)
+    output = self.find_word(request)
 
     return super().handle(output)
   
-  def find_char(self, dst):
+  def find_word(self, dst):
     """
     Iterates through the image until it finds a character. 
     It explores the character to find its max_x, min_x, max_y, min_y
@@ -89,7 +154,7 @@ class WordDetectionHanlder(AbstractHandler):
     pixels = im.load()
     # clean the dictionary out 
     # before adding a new image
-    #iterate through the pixels in dst
+    # iterate through the pixels in dst
     while (x < im.size[0]): # for every pixel:
       y = 0
       while (y < im.size[1]):
@@ -218,62 +283,23 @@ class WordDetectionHanlder(AbstractHandler):
       return False
 
 class CharacterDetectionHandler(AbstractHandler):
+
+  def __init__(self, ratio_constrain, width_constrain, block_size, step_size, thresh):
+    self.ratio_constrain = ratio_constrain
+    self.width_constrain = width_constrain
+    self.block_size = block_size
+    self.step_size = step_size
+    self.thresh = thresh
   
   def handle(self, request):
-    f_name, f_img = request
-    output = cv2.cvtColor(f_img, self.code)
+    output = self.find_char(request)
 
-    return super().handle((f_name, output))
+    return super().handle(output)
 
-
-# ---------------------------------
-def grab_fields_coords(coords_json):
-  """Read JSON file containing all fields coordinates."""
-  with open(coords_json, "r") as f:
-    content = json.loads(f.read())
-
-  return content 
-
-def grab_fields(form_img, coords):
-  """
-  Grab all the fields from a form image.
-    
-  Parameters
-  ----------
-  form_img : array
-    3d-array representing the whole form image
-  coords : 
-    JSON file containing the coordinates of the fields
-
-  Return
-  ------
-  to_ret : dict
-    For each field name holds a 3d-array representing that field as an image
-  """
-  to_ret = {}
-  fields = grab_fields_coords(coords)['fields']
-  
-  for field in fields:
-    name = field['field']
-    x = field['coord_pixel'][0]
-    y = field['coord_pixel'][1]
-    w = field['width']
-    h = field['height']
-    form_field = form_img[y:y+h, x:x+w]
-    to_ret[name] = form_field
-
-  return to_ret
-# --------------------------------
-
-# ---- char slicing ----
-def char_detection(words, fields):
-  for field in fields:
-    field_img = fields[field]
-    show_image(field_img, f"FIELD: {field}")
-    field_words = words_positions[field]
-    # Find characters in each word
+  def find_char(self, request):
+    letters, field_img = request
     char_points = []
-    for field_word in field_words:
+    for field_word in letters:
       x = field_word['x']
       y = field_word['y']
       w = field_word['w']
@@ -282,7 +308,7 @@ def char_detection(words, fields):
       # How many times does the height fits into the width?
       ratio = w / h 
       # Condition to run the slicing character approach
-      if ratio > 1.5 and w > 40:
+      if ratio > self.ratio_constrain and w > self.width_constrain:
         # For each word find the characters
         gray_img = cv2.cvtColor(word_img, cv2.COLOR_BGR2GRAY)
         _, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
@@ -290,48 +316,192 @@ def char_detection(words, fields):
         res_op_1 = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
         thresh_img -= res_op_1
         # Calculate the image vertical projection histogram
-        word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = create_h_v_image_proj(thresh_img)
+        word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = self.create_h_v_image_proj(thresh_img)
         # Get characters
-        block_size = 10
-        step_size = 5
-        thresh = 10
-        if len(word_v_hist_proj) > block_size:
-          seg_points = segmentation_points(word_v_hist_proj, block_size, step_size, thresh)
+        if len(word_v_hist_proj) > self.block_size:
+          seg_points = self.segmentation_points(word_v_hist_proj, self.block_size, self.step_size, self.thresh)
           # Improve segmentation positions
-          seg_points = local_search(word_v_hist_proj, seg_points, block_size // 2)
+          seg_points = self.local_search(word_v_hist_proj, seg_points, self.block_size // 2)
           # Pixel transition count
-          seg_points = pixel_transition_count(thresh_img, seg_points)
+          seg_points = self.pixel_transition_count(thresh_img, seg_points)
+          seg_points = [int(char_x + x) for char_x in seg_points]
           # Update x coordinate in respect of original image
-          char_points = char_points + [int(char_x + x) for char_x in seg_points]
+          if seg_points != []:
+            char_points.append({"orig_coords": field_word, "char_coords": seg_points})
+          else:
+            char_points.append(field_word)
+      else:
+        char_points.append(field_word)
 
-def word_pipeline(handler: Handler):
+    # From segmentation lines to actual x, y, w, and h inside the field
+    bbox_coords = []
+    for chars in char_points:
+      if "orig_coords" in chars.keys():
+        orig_x = chars['orig_coords']['x']
+        orig_y = chars['orig_coords']['y']
+        orig_h = chars['orig_coords']['h']
+        orig_w = chars['orig_coords']['w']
+        
+        prev_seg_line = orig_x
+        seg_lines = chars['char_coords']
+        for seg_line in seg_lines:
+          x = prev_seg_line
+          w = seg_line - prev_seg_line
+          y = orig_y
+          h = orig_h
+          bbox_coords.append({"x": x, "y": y, "w": w, "h": h})
+          prev_seg_line = x + w
+        # Append the last one
+        w = (orig_x + orig_w) - (x + w)
+        bbox_coords.append({"x": prev_seg_line, "y": y, "w": w, "h": h})
+      else:
+        bbox_coords.append(chars)
+    
+    # Remove single pixel width characters (small enough to be a character) 
+    for coord in bbox_coords:
+      w = coord['w']
+      h = coord['h']
+      if w <= 2 or h <= 2:
+        bbox_coords.remove(coord)
+        
+    return bbox_coords
+
+  def create_h_v_image_proj(self, thresh_img):
+    h, w = thresh_img.shape[:2]
+    h_hist_img = np.zeros(thresh_img.shape[:2], dtype='uint8')
+    v_hist_img = np.zeros(thresh_img.shape[:2], dtype='uint8')
+
+    word_v_hist_proj = np.sum(thresh_img / 255, axis=0)
+    word_h_hist_proj = np.sum(thresh_img / 255, axis=1) 
+
+    m = np.max(word_h_hist_proj)
+    for row in range(thresh_img.shape[0]):
+      h_hist_img = cv2.line(
+        h_hist_img, 
+        (0,row), 
+        (int(word_h_hist_proj[row] * w/m),row), 
+        (255,255,255), 
+        1)
+    m = np.max(word_v_hist_proj)
+    for col in range(thresh_img.shape[1]):
+      v_hist_img = cv2.line(
+      v_hist_img, 
+      (col,h), 
+      (col,h - int(word_v_hist_proj[col]*h/m)), 
+      (255,255,255),
+      1)
+    return word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img
+    
+  def segmentation_points(self, v_projection, block_size, step_size, thresh):
+    seg = []
+    sumC = 0 # Sum of current block values
+    sumP = 0 # Sum of preceding block values
+    i = step_size
+    j = 0
+    k = 0
+    while k <= block_size:
+      sumP += v_projection[k]
+      k += 1
+    while i < (v_projection.shape[0] - block_size):
+      k = i
+      while k <= (i + block_size):
+        sumC += v_projection[k]
+        k += 1
+      if (sumP - sumC) > thresh:
+        # Keep the index of the segmentation
+        seg.insert(j, i + (block_size / 2)) 
+        j += 1
+        sumP = 0
+      else:
+        sumP = sumC
+      i += step_size
+      sumC = 0
+
+    return seg
+
+  def local_search(self, v_hist, seg_points, length):
+    to_ret = []
+    for seg_p in seg_points:
+      start = int(seg_p - length)
+      end = int(seg_p + length + 1)
+      # Handle search out of bounds
+      if start < 0:
+        start = 0
+      if end > len(v_hist):
+        end = len(v_hist)
+      slice_to_check = v_hist[start:end]
+      to_ret.append(start + np.argmin(slice_to_check))
+    return to_ret
+
+  def pixel_transition_count(self, thresh_img, seg_points):
+    to_ret = []
+    for seg_p in seg_points:
+      v_slice = list(thresh_img[:,seg_p])
+      changes = 0
+      current = None
+      for val in v_slice:
+        if current == None:
+          current = val
+          continue
+        if val != current:
+          changes += 1
+        current = val
+      if changes <= 2:
+        to_ret.append(seg_p)
+    return to_ret
+
+
+def word_pipeline(fields, handler: Handler):
   words = {}
-  form_img = cv2.imread("highRes_ForestService.jpg")
-  fields = grab_fields(form_img, "all_fields_conservative.json")
-  for field_name, field_img in fields.items():
+  for field_name in fields:
+    field_img = cv2.imread(DIR + field_name)
     output = handler.handle(field_img)
     words[field_name] = output
-    ##cv2.imshow(field_name, output)
-    ##cv2.waitKey(0) # waits until a key is pressed
-    ##cv2.destroyAllWindows() # destroys the window showing image
   return words 
-# ----------------------
-if __name__ == "__main__":
-  # input -> fields_coords.json
-  #       -> form_img 
-  # output -> clean character images 
 
+def char_pipeline(fields, words, handler: Handler):
+  chars = {}
+  for field_name in fields:
+    letters = words[field_name]
+    field_img = cv2.imread(DIR + field_name)
+    output = handler.handle((letters, field_img))
+    chars[field_name] = output
+  return chars
+
+ 
+def create_json(list_of_dict):
+  """
+  Creates the json file with the bbox coordinates
+  """
+  
+  # store the data into a new json file
+  with open(OUTPUT_FILE_NAME, 'a') as outfile: 
+    json.dump(list_of_dict, outfile)
+
+
+def main():
+  # Data that both pipelines will use
+  fields = grab_fields(DIR)
+  
   # Defines the word extracting pipeline
   color_to_gray = ChangeColorImageHandler(code=cv2.COLOR_BGR2GRAY)
   threshold = ThresholdImageHandler(0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
   gray_to_color = ChangeColorImageHandler(code=cv2.COLOR_GRAY2BGR)
   word_detector = WordDetectionHanlder() 
-
+  # Builds word extracting pipeline 
   color_to_gray.set_next(threshold).set_next(gray_to_color).set_next(word_detector)
-  words = word_pipeline(color_to_gray)
-  print(words)
-  # Defines the character extracting pipeline
-
-  #change_color_image = (cv2.COLOR_BGR2GRAY)
+  # Executes word extracting pipeline 
+  words = word_pipeline(fields, color_to_gray)
   
+  # Defines the character extracting pipeline
+  char_detector = CharacterDetectionHandler(ratio_constrain=1.5, width_constrain=40, block_size=10, step_size=5, thresh=10)
+  # Executes character extracting pipeline
+  chars = char_pipeline(fields, words, char_detector)
+  
+  # Saves the coordiantes to a JSON file
+  create_json([chars])
+    
+# ----------------------
+if __name__ == "__main__":
+  main()
 
