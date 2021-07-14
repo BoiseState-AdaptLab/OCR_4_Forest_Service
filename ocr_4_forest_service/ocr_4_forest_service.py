@@ -8,8 +8,9 @@ from src.crop_bbox import crop_bbox
 from src.char_detection import char_detection
 from src.img_preprocessing import img_preprocessing
 from src.create_csv import create_csv
+from src.create_csv import create_test_csv
 import argparse
-import sys
+
 
 def main():
 
@@ -25,7 +26,6 @@ def main():
         help="Testing pipeline execution flag. If not specified, the program executes in production mode")
     args = vars(ap.parse_args())
 
-    print("len of args: ", type(args))
     # the main functions are called in order of execution
     # determined by the pipeline
 
@@ -49,7 +49,7 @@ def main():
         # 4) We read the newly generated JSON file and crop
         # the single character images out of the fields and 
         # store them into a new directory
-        crop_bbox()
+        crop_bbox(args)
 
         # 5) Finally, we pre process each single character
         # image to minimize noise and refine the pen stroke.
@@ -65,12 +65,25 @@ def main():
     else: # The program is being run in testing mode.
           # The execution will be similar to the 
           # production mode except for classifications. 
-        print("we are in testing mode")
+
+        # 1) We begin the execution from the bounding box 
+        # cropping because the JSON file provided was 
+        # manually generated to incorpotate single characters.
+        crop_bbox(args)
+
+        # 2) From this step onward, the execution is the same 
+        # as the production pipeline.
+        img_preprocessing()
+
+        # 3) Instead of hard-coding the classification to zero
+        # in the csv file, in the testing pipeline we know the
+        # correct classifications to store in the csv file. 
+        create_test_csv(args)
+
+        print("Done Executing Testing Pipeline!")
         
 
         
-
-
 #main function
 if __name__ == '__main__':
   main()

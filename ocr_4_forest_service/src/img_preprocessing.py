@@ -34,14 +34,26 @@ def img_preprocessing():
 
         con_img = cv2.cvtColor(blurred, cv2.COLOR_GRAY2BGR)
         dst = cv2.fastNlMeansDenoisingColored(con_img,None,10,10,7,21)
+
+        padded = add_padding(dst)
        
-        resized = cv2.resize(dst, (28,28))
+        resized = cv2.resize(padded, (28,28))
   
         end_path = "preprocessed/" + image
         cv2.imwrite(end_path, resized)
 
+  
 
-   
+def add_padding(im):
+
+    color = [0, 0, 0] # padding in black
+    new_im = cv2.copyMakeBorder(im, 4, 4, 4, 4, cv2.BORDER_CONSTANT,
+        value=color)
+    
+    return new_im
+
+
+
     
 """
  if the output dir already exists, it gets
