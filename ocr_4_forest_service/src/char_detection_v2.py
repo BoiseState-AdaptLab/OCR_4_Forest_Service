@@ -117,9 +117,9 @@ class ThresholdImageHandler(AbstractHandler):
   """Handler implementation that performs a threshold operation to an image.
   
   Attributes:
-    thresh: A number 
-    maxval: 
-    type:
+    thresh: Number which is used to classify the pixel values 
+    maxval: Number to be given if a pixel is bigger (or smaller) than thresh 
+    type: Type of tresholding technique
   """
   
   def __init__(self, thresh, maxval, type):
@@ -134,6 +134,8 @@ class ThresholdImageHandler(AbstractHandler):
 
 
 class WordDetectionHanlder(AbstractHandler):
+  """Handler implementation that performs word segmentation.
+  """
   
   def handle(self, request):
     output = self.find_word(request)
@@ -283,7 +285,19 @@ class WordDetectionHanlder(AbstractHandler):
       return False
 
 class CharacterDetectionHandler(AbstractHandler):
+  """Handler implementation that performs character segmentation.
 
+  Attributes:
+    ratio_constrain: Minimum instance ratio (width/height) to consider further
+    processing
+    width_constrain: Minimum instance width to consider further processing  
+    block_size: How big should be the block on the character segmentation
+    algorithm 
+    step_size: How big should be the step size on the character segmentation 
+    algorithm
+    thresh: How big should be the difference between the sum of the pixel
+    values of a block to place a segmentation point 
+  """
   def __init__(self, ratio_constrain, width_constrain, block_size, step_size, thresh):
     self.ratio_constrain = ratio_constrain
     self.width_constrain = width_constrain
@@ -297,8 +311,11 @@ class CharacterDetectionHandler(AbstractHandler):
     return super().handle(output)
 
   def find_char(self, request):
+    """Find segmentation points between characters and return its coordinates.
+    """
     letters, field_img = request
     char_points = []
+    # Iterate through each letter that was found by the previous step
     for field_word in letters:
       x = field_word['x']
       y = field_word['y']
@@ -309,7 +326,7 @@ class CharacterDetectionHandler(AbstractHandler):
       ratio = w / h 
       # Condition to run the slicing character approach
       if ratio > self.ratio_constrain and w > self.width_constrain:
-        # For each word find the characters
+        # Performs somre preprocessing to the image
         gray_img = cv2.cvtColor(word_img, cv2.COLOR_BGR2GRAY)
         _, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
         # Remove long horizontal lines
@@ -324,8 +341,10 @@ class CharacterDetectionHandler(AbstractHandler):
           seg_points = self.local_search(word_v_hist_proj, seg_points, self.block_size // 2)
           # Pixel transition count
           seg_points = self.pixel_transition_count(thresh_img, seg_points)
-          seg_points = [int(char_x + x) for char_x in seg_points]
           # Update x coordinate in respect of original image
+          seg_points = [int(char_x + x) for char_x in seg_points]
+          # Keeps track of the original coordinates so then segmentation points
+          # can be converted to coordinates
           if seg_points != []:
             char_points.append({"orig_coords": field_word, "char_coords": seg_points})
           else:
@@ -341,7 +360,7 @@ class CharacterDetectionHandler(AbstractHandler):
         orig_y = chars['orig_coords']['y']
         orig_h = chars['orig_coords']['h']
         orig_w = chars['orig_coords']['w']
-        
+        # Keeps track of the previous segmentation line x position 
         prev_seg_line = orig_x
         seg_lines = chars['char_coords']
         for seg_line in seg_lines:
@@ -351,13 +370,14 @@ class CharacterDetectionHandler(AbstractHandler):
           h = orig_h
           bbox_coords.append({"x": x, "y": y, "w": w, "h": h})
           prev_seg_line = x + w
-        # Append the last one
+        # Append the last one, from the segmentation line to the end of the
+        # field
         w = (orig_x + orig_w) - (x + w)
         bbox_coords.append({"x": prev_seg_line, "y": y, "w": w, "h": h})
       else:
         bbox_coords.append(chars)
     
-    # Remove single pixel width characters (small enough to be a character) 
+    # Remove single pixel width characters (too small to be a character) 
     for coord in bbox_coords:
       w = coord['w']
       h = coord['h']
@@ -367,32 +387,69 @@ class CharacterDetectionHandler(AbstractHandler):
     return bbox_coords
 
   def create_h_v_image_proj(self, thresh_img):
+    """Create vertical and horizontal histogram projections and their 
+    respective images.
+
+    Parameters:
+      thresh_img: 2D array that represent the pixel intensity value of an image
+      that has been thresholded (0 or 255 pixel values)
+
+    Returns:
+      word_v_hist_proj: 1D array same size as width of thresh_img where each 
+      element represents the white pixel frequency of one column of thresh_image
+      word_h_hist_proj: 1D array same size as height of thresh_img where each 
+      element represents the white pixel frequency of one row of thresh_image
+      v_hist_img: 2D array representing in an image the vertical histrogram 
+      projection
+      h_hist_img: 2D array representing in an image the horizontal histrogram 
+      projection
+    """
     h, w = thresh_img.shape[:2]
+    # Creates black image same size as thresh_img
     h_hist_img = np.zeros(thresh_img.shape[:2], dtype='uint8')
     v_hist_img = np.zeros(thresh_img.shape[:2], dtype='uint8')
-
+    # Normalizes the image and counts pixels through rows and columns
     word_v_hist_proj = np.sum(thresh_img / 255, axis=0)
     word_h_hist_proj = np.sum(thresh_img / 255, axis=1) 
-
+    # Calcualtes the value of max pixel frequency in horizontal hist projection 
     m = np.max(word_h_hist_proj)
     for row in range(thresh_img.shape[0]):
+      # Creates a horizontal white line proportional size to the white pixel 
+      # frequency of that row
       h_hist_img = cv2.line(
         h_hist_img, 
         (0,row), 
         (int(word_h_hist_proj[row] * w/m),row), 
         (255,255,255), 
         1)
+    # Calculates the max pixel frequency value in vertical hist projection
     m = np.max(word_v_hist_proj)
     for col in range(thresh_img.shape[1]):
+      # Creates a horizontal white line proportional size to the white pixel
+      # frequency of that column
       v_hist_img = cv2.line(
       v_hist_img, 
       (col,h), 
       (col,h - int(word_v_hist_proj[col]*h/m)), 
       (255,255,255),
       1)
+    
     return word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img
     
   def segmentation_points(self, v_projection, block_size, step_size, thresh):
+    """Algorithm that finds segmentation points in an image. Extracted from
+    section 4.3 of this paper: https://www.techscience.com/cmc/v60n1/28373 
+
+    Parameters: 
+      v_projection: 1D array with the vertical hist projection values
+      block_size: Size of the block to perform the sum 
+      step_size: Number of steps taking in each iteration
+      thresh: Minimum difference between blocks to be considered a segmentation
+      point
+
+    Returns:
+      seg: Array containing all x-axis segmentation points
+    """
     seg = []
     sumC = 0 # Sum of current block values
     sumP = 0 # Sum of preceding block values
@@ -420,6 +477,18 @@ class CharacterDetectionHandler(AbstractHandler):
     return seg
 
   def local_search(self, v_hist, seg_points, length):
+    """Performs a local search around a segmentation point looking for the 
+    lowest pixel frequency value.
+
+    Parameters:
+      v_hist: 1D array representing the vertical histogram projection values
+      seg_points: Array containig all the x-axis segmentation points
+      length: Number to determine how far to look left and right of the
+      segmentation point
+
+    Returns:
+      to_ret: Array with updated segmentation points 
+    """
     to_ret = []
     for seg_p in seg_points:
       start = int(seg_p - length)
@@ -430,12 +499,26 @@ class CharacterDetectionHandler(AbstractHandler):
       if end > len(v_hist):
         end = len(v_hist)
       slice_to_check = v_hist[start:end]
+      # Gets the index of the lowest value of the slice and gets its true 
+      # position by adding the start position
       to_ret.append(start + np.argmin(slice_to_check))
+    
     return to_ret
 
   def pixel_transition_count(self, thresh_img, seg_points):
+    """Discard segmentation points that have more than two transitions from 
+    black to white.
+
+    Parameters:
+      thresh_img: 2D array representing the thresholded image (0 or 255 values)
+      seg_points: Array containing all the segmentations found
+    
+    Returns:
+      to_ret: Array with updated segmentation points 
+    """
     to_ret = []
     for seg_p in seg_points:
+      # Gets the pixel values vertically from the segmentation point position
       v_slice = list(thresh_img[:,seg_p])
       changes = 0
       current = None
@@ -446,8 +529,10 @@ class CharacterDetectionHandler(AbstractHandler):
         if val != current:
           changes += 1
         current = val
+      # Keep segmentaiton points that change on the vertical axis at max two times 
       if changes <= 2:
         to_ret.append(seg_p)
+    
     return to_ret
 
 
