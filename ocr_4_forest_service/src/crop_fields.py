@@ -9,20 +9,12 @@ import cv2
 import os
 import json
 import shutil
-import argparse
 
 
 """
  Performs command line parsing and function calls
 """
 def crop_fields(args):
-    # # construct the argument parser and parse the arguments
-    # ap = argparse.ArgumentParser()
-    # ap.add_argument("-i", "--input", required=True,
-    #     help="path to Forest Service form")
-    # ap.add_argument("-json", "--coord", type=str, required=True,
-    #     help="path to JSON file with fields coordinates")
-    # args = vars(ap.parse_args())
 
     # read the input image in
     form, fields = read_inputs(args)
@@ -35,7 +27,6 @@ def crop_fields(args):
     # form and stores them in fields/
     crop(form, fields)
 
-    # exit(0)
 
 
     
@@ -78,7 +69,7 @@ def crop(image, json_file):
     i = 0
 
     for field in json_file['fields']:
-        # print(field)
+       
         x = (field['coord_pixel'][0])
         y = (field['coord_pixel'][1])
         w = field['width']
@@ -91,11 +82,7 @@ def crop(image, json_file):
         if cropped_img is not None:
             
             # cv2.imshow(window_name, cropped_img)
-            cv2.imwrite('field_{num}.jpg'.format(num = i), cropped_img)
-
-            old_path = os.path.abspath('field_{num}.jpg'.format(num = i))
-            new_path = old_path[:-12] + "/fields/" + old_path[101:]
-            shutil.move(old_path, new_path)
+            cv2.imwrite('fields/field_{num}.jpg'.format(num = i), cropped_img)
     
 
         else:
@@ -104,11 +91,5 @@ def crop(image, json_file):
         i = i + 1 
 
 
-    
-"""
-Definition of main function
-"""
-# if __name__ == '__main__':
-#     main()
 
 

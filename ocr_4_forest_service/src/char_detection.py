@@ -42,7 +42,7 @@ def img_preprocess():
         file.truncate(0)
         file.close()
   
-    # counter = 0
+    
     #for each image in the output directory:
     for image in os.listdir(DIR):
         json_dict = {} 
@@ -58,7 +58,7 @@ def img_preprocess():
         #perform the image preprocessing stepss
         blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
         ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-        # blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
+      
         con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
         dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
@@ -105,7 +105,6 @@ def find_char(dst, img, json_dict):
                     pixels[min_x, max_y] = (255, 0 , 0)
                     pixels[max_x, max_y] = (255, 0 , 0)
 
-                    # counter = counter + 1
                     
                     json_list.append({'x': min_x, 
                                     'y': min_y, 
@@ -260,9 +259,3 @@ def check_coord(x, y, max_x, min_x, max_y, min_y):
   return max_x, min_x, max_y,  min_y
 
 
-
-"""
-Main function declaration
-"""
-# if __name__ == '__main__':
-#     main()

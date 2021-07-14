@@ -9,29 +9,40 @@ import json
 import shutil
 
 
-def crop_bbox():
+def crop_bbox(args):
     # clean the directory from previous data
     # or create it
     output_dir()
 
     # open json file bbox_coord.json with bbox coordinates
-    fields = open_json()
-  
-    # iterate through fields and find the bboxes
-    crop(fields)
+    fields = open_json(args)
 
-    # the new images generated are stored in the single_chars/ directory
-        
-    # exit(0)
+    if args['t'] is True:
+        # print(args['input'])
+        # crop the bbox out of the form
+        test_crop(fields, args['input'])
+    else:
+        # iterate through fields and find the bboxes
+        crop(fields)
+    
+
+   
 
 """
 Load the data from the bbox coord file
 """
-def open_json():
-    # load the json file
-    json_file = open('bbox_coord.json')
+def open_json(args):
+
+    if args['t'] is True:
+        # read the manually generaterd JSON file
+        json_file = open(args["coord"])
+    else:   
+        # load the json file
+        json_file = open('bbox_coord.json')
+
     fields = json.load(json_file)
     return fields
+    
 
 
 """
@@ -81,12 +92,9 @@ def crop(fields):
 
                 # display the image to user
                 if cropped_img is not None:
-                    # cv2.imshow(window_name, cropped_img)
-                    cv2.imwrite('box_{num}.jpg'.format(num = i), cropped_img)
+                    
+                    cv2.imwrite('single_chars/box_{num}.jpg'.format(num = i), cropped_img)
 
-                    old_path = os.path.abspath('box_{num}.jpg'.format(num = i))
-                    new_path = old_path[:-10] + "/single_chars/"
-                    shutil.move(old_path, new_path)
                 else:
                     print("no image has been read")
 
@@ -94,10 +102,36 @@ def crop(fields):
 
 
 
-"""
-Definition of main function
-"""
-# if __name__ == '__main__':
-#     main()
+def test_crop(json, image):
+
+    i = 0
+    # open form as an image
+    img = cv2.imread(image)
+
+    for char in json['character']:
+       
+        x = int(char['x'])
+        y = int(char['y'])
+        w = int(char['w'])
+        h = int(char['h'])
+
+        # cropping the image
+        cropped_img = img[y:y + h, x:x + w]
+        
+     
+        if cropped_img is not None:
+         
+            cv2.imwrite('single_chars/field_{num}.jpg'.format(num = i), cropped_img)
+    
+
+        else:
+            print("Error: no image has been read.")
+
+
+        i = i + 1 
+ 
+        
+
+
 
 

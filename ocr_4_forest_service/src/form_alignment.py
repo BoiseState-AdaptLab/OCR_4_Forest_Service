@@ -1,47 +1,26 @@
 #!/usr/bin/env python
 # Author: Sandra Busch
 # Date: June 16, 2021
-import os
+
 import cv2
 import numpy as np
 import imutils
-import json
+
 
 
 def form_alignment(args):
-    image_path = None
-    template_path = None
+    
     max_features = 1000
     keep_percent = 0.2
 
 
     # read the input image in
     temp, form = read_inputs(args)
-    # # prompt user for input
-    # if template_path != 'q' or image_path != 'q':
-    #     template_path = input("Enter the path to the template or type q to quit: ")
-    #     while not os.path.isfile(template_path):
-    #         if template_path == 'q':
-    #             exit(0)
-    #         template_path = input("** The file could not be found ** \n Enter a valid path to the file: ")
-    #     image_path = input("Enter the path to image being aligned or type q to quit: ")
-    #     while not os.path.isfile(image_path):
-    #         if image_path == 'q':
-    #             exit(0)
-    #         image_path = input("** The file could not be found ** \n Enter a valid path to the file: ")
-
-    # # open file as an image
-    # image = cv2.imread(image_path)
-    # template = cv2.imread(template_path)
 
     # align image and save it to file
     aligned = align_images(form, temp, max_features, keep_percent)
     cv2.imwrite('alignedImage.jpg', aligned)
    
-    # show image overlay
-    # output = overlay_images(aligned, temp)
-    # cv2.imshow("Image Alignment Overlay", output)
-    # cv2.waitKey(0)
 
 
 def read_inputs(args):
@@ -77,12 +56,6 @@ def align_images(image, template, max_features, keep_percent):
     # keep only the top matches
     keep = int(len(matches) * keep_percent)
     matches = matches[:keep]
-
-    # check to see if we should visualize the matched keypoints
-    #matchedVis = cv2.drawMatches(image, kpsA, template, kpsB, matches, None)
-    #matchedVis = imutils.resize(matchedVis, width=1000)
-    # cv2.imshow("Matched Keypoints", matchedVis)
-    # cv2.waitKey(0)
 
     # allocate memory for the keypoints (x,y-coordinates) from the
     # top matches -- we'll use these coordinates to compute our
@@ -125,7 +98,3 @@ def overlay_images(aligned, template):
     cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
     return output
 
-
-# main function
-# if __name__ == '__main__':
-#     main()
