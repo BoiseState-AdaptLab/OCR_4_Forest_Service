@@ -8,7 +8,7 @@ ocr_4_forest_service/output/
 ocr_4_forest_service/src/single_chars/
 ocr_4_forest_service/src/fields/
 ocr_4_forest_service/src/__pycache__/
-
+ocr_4_forest_service/tests/fields/
 ocr_4_forest_service/src/alignedImage.jpg/
 ocr_4_forest_service/preprocessed/
 ocr_4_forest_service/src/bbox_coord.json
