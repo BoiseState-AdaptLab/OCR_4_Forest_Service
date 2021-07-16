@@ -10,7 +10,9 @@ ocr_4_forest_service/src/single_chars/
 ocr_4_forest_service/src/fields/
 ocr_4_forest_service/src/__pycache__/
 ocr_4_forest_service/tests/fields/
+ocr_4_forest_service/tests/preprocessed/
 ocr_4_forest_service/tests/single_chars/
+ocr_4_forest_service/tests/test_data.csv
 ocr_4_forest_service/tests/field_0/
 ocr_4_forest_service/tests/field_0_coord.json
 ocr_4_forest_service/tests/field_1/
