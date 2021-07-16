@@ -274,6 +274,10 @@ def word_segmentation():
         char_points = []
         path = 'fields/' + list(fields.keys())[0]
         field_img = cv2.imread(path, 1)
+        
+        if field_img is None:
+            print("Issues opening the image")
+            exit(1)
         # print("fields : ", fields)
         
         for field_name, dicts in fields.items():

@@ -9,6 +9,10 @@ ocr_4_forest_service/src/single_chars/
 ocr_4_forest_service/src/fields/
 ocr_4_forest_service/src/__pycache__/
 ocr_4_forest_service/tests/fields/
+ocr_4_forest_service/tests/single_chars/
+ocr_4_forest_service/tests/field_0/
+ocr_4_forest_service/tests/field_0_coord.json
+ocr_4_forest_service/tests/bbox_coord.json
 ocr_4_forest_service/src/alignedImage.jpg/
 ocr_4_forest_service/preprocessed/
 ocr_4_forest_service/src/bbox_coord.json
