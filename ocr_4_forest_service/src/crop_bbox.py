@@ -75,7 +75,7 @@ def crop(fields):
         # print("dict: ", dict)
         # we only get the key
         new_d = [str(key) for key in dict.keys()]
-        print("name of field: ", new_d[0])
+        # print("name of field: ", new_d[0])
         field_name = DIR + new_d[0]
 
         # open form as an image
@@ -94,7 +94,7 @@ def crop(fields):
                 # cropping the image
                 cropped_img = img[y:y + h, x:x + w]
 
-                tracing_image(cropped_img, new_d, name, x, y)
+                cropped_img = tracing_image(cropped_img, new_d, name, x, y)
             
                 # display the image to user
                 if cropped_img is not None:
@@ -114,10 +114,10 @@ def tracing_image(cropped_img, field_name, box_name, x_coord, y_coord):
 
     # read the image using pillow library
     im = Image.open('cropped.jpg')
-    print(im.size)
+    # print(im.size)
     # make a copy of the image
     trace_image = im.copy()
-    print(trace_image.size)
+    # print(trace_image.size)
     #coloring the image with the background color
     width, height = trace_image.size
     # print(width)
@@ -149,8 +149,11 @@ def tracing_image(cropped_img, field_name, box_name, x_coord, y_coord):
                             # print(pix)
                             trace_image.putpixel(tuple, pix)
 
-                        trace_image.show()
+                        # trace_image.show()
+                        trace_image.save('traced_image.jpg')
                         # exit()
+    image = cv2.imread('traced_image.jpg')
+    return image
                                    
 
 

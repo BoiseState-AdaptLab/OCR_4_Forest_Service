@@ -48,7 +48,7 @@ def img_preprocess():
     
     #for each image in the output directory:
     for image in os.listdir(DIR):
-        print("in img_preprocessing: ", image)
+        # print("in img_preprocessing: ", image)
         json_dict = {} 
         tracing_dict = {}
         #set up the right string for the path 
