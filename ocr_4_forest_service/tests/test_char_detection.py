@@ -28,12 +28,12 @@ def test_field_0():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -119,11 +119,11 @@ def test_field_1():
 
     #perform the image preprocessing stepss
     blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -209,11 +209,11 @@ def test_field_2():
 
     #perform the image preprocessing stepss
     blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -298,12 +298,12 @@ def test_field_3():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -388,12 +388,12 @@ def test_field_4():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -478,12 +478,12 @@ def test_field_5():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -569,12 +569,12 @@ def test_field_6():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -659,12 +659,12 @@ def test_field_7():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -749,12 +749,12 @@ def test_field_8():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -839,12 +839,12 @@ def test_field_9():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -928,12 +928,12 @@ def test_field_10():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1018,12 +1018,12 @@ def test_field_11():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1108,12 +1108,12 @@ def test_field_12():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1198,12 +1198,12 @@ def test_field_13():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1287,12 +1287,12 @@ def test_field_14():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1376,12 +1376,12 @@ def test_field_15():
     img = cv2.imread(path, 0) 
 
     #perform the image preprocessing stepss
-    blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-    ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+    #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(dst, image, json_dict)
+    json_data = find_char(con_img, image, json_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
