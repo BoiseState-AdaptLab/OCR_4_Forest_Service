@@ -61,14 +61,18 @@ def img_preprocess():
             exit(1)
         
         #perform the image preprocessing stepss
-        blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-        ret, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
+        ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
       
         con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-        dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
+        #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-        json_data, tracing_data = find_char(dst, image, json_dict, tracing_dict)
+
+        json_data, tracing_data = find_char(con_img, image, json_dict, tracing_dict)
         # print(json_data)
+
+        # json_data = find_char(con_img, image, json_dict)
+
         list_of_dict.append(json_data)
         # print(list_of_dict)
         list_of_tracings.append(tracing_data)
