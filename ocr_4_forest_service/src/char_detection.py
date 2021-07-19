@@ -1,4 +1,4 @@
-# Author: Floriana Ciaglia
+# Author: Floriana Ciaglia, Joshua Suotelo Vieira
 # Date: May 14th, 2021
 
 # This program creates a bounding box around a discrete letter by:
@@ -36,6 +36,7 @@ def img_preprocess():
     # this is the list where 
     # each images data is stored 
     list_of_dict = []
+    list_of_tracings = []
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -47,7 +48,9 @@ def img_preprocess():
     
     #for each image in the output directory:
     for image in os.listdir(DIR):
+        print("in img_preprocessing: ", image)
         json_dict = {} 
+        tracing_dict = {}
         #set up the right string for the path 
         path = DIR + image
         
@@ -64,8 +67,15 @@ def img_preprocess():
         con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
         dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-        json_data = find_char(dst, image, json_dict)
+        json_data, tracing_data = find_char(dst, image, json_dict, tracing_dict)
+        # print(json_data)
         list_of_dict.append(json_data)
+        # print(list_of_dict)
+        list_of_tracings.append(tracing_data)
+
+
+    with open('tracing_list.json', 'w') as convert_file:
+        convert_file.write(json.dumps(list_of_tracings))
 
     create_json(list_of_dict)
     
@@ -76,10 +86,11 @@ Iterates through the image until it finds a character.
 It explores the character to find its max_x, min_x, max_y, min_y
 @return dictionary of data to populate the json file
 """
-def find_char(dst, img, json_dict):
+def find_char(dst, img, json_dict, tracing_dict):
      
     max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
     json_list = []
+    tracing_list = []
     x = 0
 
     # Open the image using the PIL library
@@ -89,17 +100,18 @@ def find_char(dst, img, json_dict):
     # clean the dictionary out 
     # before adding a new image
     json_dict.clear()
-
+    i = 0
     #iterate through the pixels in dst
     while (x < im.size[0]): # for every pixel:
         y = 0
-      
+        
         while (y < im.size[1]):
-          
+            
+            #if the pixel is white
             if pixels[x,y] != (0, 0, 0):
                 
                 max_x, min_x, max_y,  min_y = explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y)
-              
+                
                 # if the area is big enough we identify it as a character
                 if valid_area(max_x, max_y, min_x, min_y):
                     pixels[min_x, min_y] = (255, 0 , 0)
@@ -107,31 +119,42 @@ def find_char(dst, img, json_dict):
                     pixels[min_x, max_y] = (255, 0 , 0)
                     pixels[max_x, max_y] = (255, 0 , 0)
 
-                    
-                    json_list.append({'x': min_x, 
+                    # im.show()
+                    box_num = 'box_{num}'.format(num = i)
+                    json_list.append({'box': box_num,
+                                    'x': min_x, 
                                     'y': min_y, 
                                     'w': max_x-min_x,
                                     'h': max_y-min_y})
-        
+                    # print("json list: ", json_list)
+                    # im.show()
+                    tracing = get_tracing(im, pixels, max_x, min_x, max_y, min_y, box_num)
+                    # print(" ", img, tracing)
+                    tracing_list.append(tracing)
+                    i = i + 1
                 y = 0
-
+                # exit()
                 x = max_x + 2
                 if x > im.size[0]-1:
                     y = im.size[1]
                 max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
-               
+                
 
             else:
                 y = y + 2
         
         x = x + 2
-    
+    # print(tracing_list)
+    # print("len of tracing list: ", len(tracing_list))
     #All the characters have been identified
-  
+    tracing_dict[img] = tracing_list
+    # print(tracing_dict)
+    # exit()
     if valid_area(max_x, max_y, min_x, min_y):
+        # print("we are in valid_area")
         json_dict[img] = json_list
     
-    return json_dict
+    return json_dict, tracing_dict
  
 
 """
@@ -144,6 +167,7 @@ def valid_area(max_x, max_y, min_x, min_y):
     width = max_x - min_x
     height = max_y - min_y
     area = width * height
+
     if area > 100:
         return True
     else:
@@ -166,6 +190,7 @@ Checks the x axis boundary
 @return boolean
 """    
 def x_in_bound(x, im):
+
     if x >= 0 and x <= im.size[0]-1:
         return True
     else:
@@ -224,8 +249,27 @@ def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
             #turn the pixel green to sign it as visited
             pixels[pair[0], pair[1]] = (0, 255, 0)
 
+    # 
+    # im.show()
     
     return max_x, min_x, max_y,  min_y
+
+
+def get_tracing(im, pixels, max_x, min_x, max_y, min_y, box_num):
+    # im.show()
+
+    tracing = []
+    tracing.append(box_num)
+  
+    for x in range(min_x, max_x):
+        for y in range(min_y, max_y):
+            
+            if pixels[x, y] == (0,  255, 0):
+                tracing.append((x,y))
+    
+    # We now have the entire tracing of the character
+    return tracing
+
 
 
 """
@@ -274,10 +318,11 @@ def word_segmentation():
         char_points = []
         path = 'fields/' + list(fields.keys())[0]
         field_img = cv2.imread(path, 1)
-        
+
         if field_img is None:
             print("Issues opening the image")
             exit(1)
+
         # print("fields : ", fields)
         
         for field_name, dicts in fields.items():
@@ -285,7 +330,7 @@ def word_segmentation():
              
             for box in dicts:
                 # print("box: ", box)
-                
+                name = box['box']
                 x = int(box['x'])
                 y = int(box['y'])
                 w = int(box['w'])
@@ -302,6 +347,7 @@ def word_segmentation():
                 block_size=10
                 step_size=5
                 thresh=10
+
                 # Condition to run the slicing character approach
                 if ratio > ratio_constrain and w > width_constrain:
                     # Performs somre preprocessing to the image
@@ -346,12 +392,12 @@ def word_segmentation():
                         w = seg_line - prev_seg_line
                         y = orig_y
                         h = orig_h
-                        bbox_coords.append({"x": x, "y": y, "w": w, "h": h})
+                        bbox_coords.append({"box": name, "x": x, "y": y, "w": w, "h": h})
                         prev_seg_line = x + w
                         # Append the last one, from the segmentation line to the end of the
                         # field
                     w = (orig_x + orig_w) - (x + w)
-                    bbox_coords.append({"x": prev_seg_line, "y": y, "w": w, "h": h})
+                    bbox_coords.append({"box": name, "x": prev_seg_line, "y": y, "w": w, "h": h})
                 else:
                     bbox_coords.append(chars)
                 
@@ -361,14 +407,12 @@ def word_segmentation():
                     h = coord['h']
                     if w <= 2 or h <= 2:
                         bbox_coords.remove(coord)
-                # print(bbox_coords)
+                
 
             characters[field_name] = bbox_coords
-            # print("characters: ", characters)
-        # print(type(characters))
+      
         json_list.append(characters)
-        # print("list: ", json_list)
-            # print("bbox_coord at the end of the loop: ",bbox_coords)
+        
                     
     return json_list
 
