@@ -336,6 +336,7 @@ def word_segmentation():
             for box in dicts:
                 # print("box: ", box)
                 name = box['box']
+                #print("name:", name)
                 x = int(box['x'])
                 y = int(box['y'])
                 w = int(box['w'])
@@ -383,6 +384,8 @@ def word_segmentation():
 
             # From segmentation lines to actual x, y, w, and h inside the field
             bbox_coords = []
+           
+            num_seq = 0 
             for chars in char_points:
                 if "orig_coords" in chars.keys():
                     orig_x = chars['orig_coords']['x']
@@ -397,23 +400,29 @@ def word_segmentation():
                         w = seg_line - prev_seg_line
                         y = orig_y
                         h = orig_h
-                        bbox_coords.append({"box": name, "x": x, "y": y, "w": w, "h": h})
+                        bbox_coords.append({"box": f"box_{num_seq}", "x": x, "y": y, "w": w, "h": h})
+                        num_seq += 1
                         prev_seg_line = x + w
                         # Append the last one, from the segmentation line to the end of the
                         # field
                     w = (orig_x + orig_w) - (x + w)
-                    bbox_coords.append({"box": name, "x": prev_seg_line, "y": y, "w": w, "h": h})
+                    bbox_coords.append({"box": f"box_{num_seq}", "x": prev_seg_line, "y": y, "w": w, "h": h})
+                    num_seq += 1
                 else:
+                    chars['box'] = f"box_{num_seq}"
                     bbox_coords.append(chars)
+                    num_seq += 1
+                
                 
                 # Remove single pixel width characters (too small to be a character) 
                 for coord in bbox_coords:
                     w = coord['w']
                     h = coord['h']
                     if w <= 2 or h <= 2:
+                        removed_seq_num = int(coord['box'].split("_")[1])
+                        num_seq = removed_seq_num
                         bbox_coords.remove(coord)
-                
-
+                 
             characters[field_name] = bbox_coords
       
         json_list.append(characters)
