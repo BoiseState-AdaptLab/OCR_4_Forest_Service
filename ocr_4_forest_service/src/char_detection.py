@@ -318,6 +318,9 @@ def word_segmentation():
     json_list = {}
     json_list = []
 
+    tracing_json = open('tracing_list.json')
+    tracings = json.load(tracing_json)
+    
     for fields in letters:
         characters = {}
         char_points = []
@@ -388,6 +391,18 @@ def word_segmentation():
             num_seq = 0 
             for chars in char_points:
                 if "orig_coords" in chars.keys():
+                    orig_name = chars['orig_coords']['box']
+                    tracing_boxes = None
+                    for field_tracing in tracings:
+                      field_tracing_key = list(field_tracing.keys())[0]
+                      if field_tracing_key == field_name:
+                        items = field_tracing.items() 
+                        for box in items:
+                          if box[1][0][0] == orig_name:
+                            tracing_boxes = box[1][0][1:] 
+                            break
+                    print("final tracings:", tracing_boxes) 
+                    exit()
                     orig_x = chars['orig_coords']['x']
                     orig_y = chars['orig_coords']['y']
                     orig_h = chars['orig_coords']['h']
