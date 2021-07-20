@@ -80,7 +80,7 @@ def crop(fields):
 
         # open form as an image
         img = cv2.imread(field_name)
-        
+        # print("fields size: ", img.shape)
         for boxes in dict.values():
             # print(len(boxes))
             for box in boxes:
@@ -94,7 +94,7 @@ def crop(fields):
                 # cropping the image
                 cropped_img = img[y:y + h, x:x + w]
 
-                # cropped_img = tracing_image(cropped_img, new_d, name, x, y)
+                cropped_img = tracing_image(cropped_img, new_d, name, x, y)
             
                 # display the image to user
                 if cropped_img is not None:
@@ -108,7 +108,7 @@ def crop(fields):
 
 
 def tracing_image(cropped_img, field_name, box_name, x_coord, y_coord):
-    # print("x and y from bbox: ", x_coord, y_coord)
+    print("x and y from bbox: ", x_coord, y_coord)
 
     cv2.imwrite('cropped.jpg', cropped_img)
 
@@ -120,8 +120,8 @@ def tracing_image(cropped_img, field_name, box_name, x_coord, y_coord):
     # print(trace_image.size)
     #coloring the image with the background color
     width, height = trace_image.size
-    # print(width)
-    # print(height)
+    print(width)
+    print(height)
     for x in range(width):
         for y in range(height):
             trace_image.putpixel((x,y), (130,181,169,255)) # this is the form's background color
@@ -138,18 +138,19 @@ def tracing_image(cropped_img, field_name, box_name, x_coord, y_coord):
 
                 for char in tracings:
                     # print(type(box))
-                    # print("this is the char name: ", name)
+                    print("this is the char list: ", char)
                     if char[0] == box_name:
                         # print(type(char))
                         for tuple in (number+1 for number in range(len(char)-1)):
-                            # print("tracing coord: ", char[tuple][0], char[tuple][1])
+                            print("tracing coord: ", char[tuple][0], char[tuple][1])
                             tuple = (char[tuple][0]-x_coord, char[tuple][1]-y_coord)
-                            # print("result", tuple)
+                            print("result", tuple)
+                            print(im.size)
                             pix = im.getpixel(tuple)
-                            # print(pix)
+                            # print(pix)s
                             trace_image.putpixel(tuple, pix)
 
-                        # trace_image.show()
+                        trace_image.show()
                         trace_image.save('traced_image.jpg')
                         # exit()
     image = cv2.imread('traced_image.jpg')
