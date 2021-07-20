@@ -125,6 +125,7 @@ def find_char(dst, img, json_dict, tracing_dict):
 
                     # im.show()
                     box_num = 'box_{num}'.format(num = i)
+                    # 
                     json_list.append({'box': box_num,
                                     'x': min_x, 
                                     'y': min_y, 
