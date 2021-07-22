@@ -20,90 +20,115 @@ import numpy as np
 """
 Definition of the main fuction
 """
-def char_detection():
-    img_preprocess()
-    json_file = word_segmentation()
-    create_json(json_file)
-  
-
-"""
-Performs the image preprocessing on the field image 
-before bounding boxes identification
-"""
-def img_preprocess():
-    DIR = "fields/"
+def char_detection(field_imgs): # char_detection takes in a list of field images 
 
     # this is the list where 
     # each images data is stored 
     list_of_dict = []
     list_of_tracings = []
+    single_chars_img_list = []
 
-    # if the output file has already been generated, 
-    # clean it out before appending to it
-    if os.path.exists("bbox_coord.json"):
-        file = open("bbox_coord.json","r+")
-        file.truncate(0)
-        file.close()
-  
-    
     #for each image in the output directory:
-    for image in os.listdir(DIR):
-        # print("in img_preprocessing: ", image)
-        json_dict = {} 
-        tracing_dict = {}
-        #set up the right string for the path 
-        path = DIR + image
-        
+    for image in field_imgs:
+
         # read in the image in gray scale
-        img = cv2.imread(path, 0) 
+        img = cv2.imread(image, 0) 
         if img is None:
             print(path)
             exit(1)
-        
-        #perform the image preprocessing stepss
-        #blurred = cv2.GaussianBlur(img, (3,3), cv2.BORDER_DEFAULT)
-        ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-      
-        con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-        #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
-        
 
-        json_data, tracing_data = find_char(con_img, image, json_dict, tracing_dict)
-        # print(json_data)
+        con_img = img_preprocess(img)
 
-        # json_data = find_char(con_img, image, json_dict)
+        bbox_list, traces_list = find_char(con_img)
 
-        list_of_dict.append(json_data)
-        # print(list_of_dict)
-        list_of_tracings.append(tracing_data)
+        # print("field coords: ", bbox_list)
+        # print("field tracing: ", traces_list)
+
+        bbox_list = word_segmentation(bbox_list, img)
+        traces_dict = update_traces(bbox_list, traces_list)
+
+        single_chars_list = single_chars(bbox_list, traces_dict)
+
+        single_chars_img_list.append(single_chars_list)
+
+    return single_chars_img_list
+
+   
+  
+def update_traces(bbox_list, traces_list):
+    final_traces = {}
+
+    for dict in bbox_list:
+     
+        start = dict['x']
+        end = start + dict['w']
+
+        for idx, pix in enumerate(traces_list):
+            if pix[0] == end-1:
+                end_line = idx
+
+        for idx, pix in enumerate(traces_list):
+            if pix[0] == start:
+                start_line = idx
+                break
+            
+        print(type(traces_list[start_line:end_line]))
+        final_traces[dict['box']] = traces_list[start_line:end_line]
+            
+    # print(type(final_traces) )
+    return final_traces
 
 
-    with open('tracing_list.json', 'w') as convert_file:
-        convert_file.write(json.dumps(list_of_tracings))
+def single_chars(bbox_list, traces_dict):
 
-    create_json(list_of_dict)
+    # this is the data structure that holds
+    # all the single char image objects to return
+    single_chars_list = []
+
+
+
+    return single_chars_list
+
+
+"""
+Performs the image preprocessing on the field image 
+before bounding boxes identification
+"""
+def img_preprocess(img):
+     #perform the image preprocessing stepss
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+    # cv2.imshow('img', con_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+    return con_img
     
-
+    
 
 """
 Iterates through the image until it finds a character. 
 It explores the character to find its max_x, min_x, max_y, min_y
 @return dictionary of data to populate the json file
 """
-def find_char(dst, img, json_dict, tracing_dict):
-     
-    max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
+def find_char(dst):
+
     json_list = []
     tracing_list = []
+    tracing = []
+
+    max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
+    
     x = 0
 
     # Open the image using the PIL library
     im = Image.fromarray(dst)
     pixels = im.load()
-    
+
     # clean the dictionary out 
     # before adding a new image
-    json_dict.clear()
+
     i = 0
     #iterate through the pixels in dst
     while (x < im.size[0]): # for every pixel:
@@ -131,10 +156,12 @@ def find_char(dst, img, json_dict, tracing_dict):
                                     'y': min_y, 
                                     'w': max_x-min_x,
                                     'h': max_y-min_y})
+
                     # print("json list: ", json_list)
                     # im.show()
-                    tracing = get_tracing(im, pixels, max_x, min_x, max_y, min_y, box_num)
-                    # print(" ", img, tracing)
+                    
+                    tracing = get_tracing(pixels, tracing, max_x, min_x, max_y, min_y)
+                    # print("## Tracing: ",tracing)
                     tracing_list.append(tracing)
                     i = i + 1
                 y = 0
@@ -149,17 +176,11 @@ def find_char(dst, img, json_dict, tracing_dict):
                 y = y + 2
         
         x = x + 2
-    # print(tracing_list)
-    # print("len of tracing list: ", len(tracing_list))
-    #All the characters have been identified
-    tracing_dict[img] = tracing_list
-    # print(tracing_dict)
-    # exit()
-    if valid_area(max_x, max_y, min_x, min_y):
-        # print("we are in valid_area")
-        json_dict[img] = json_list
-    
-    return json_dict, tracing_dict
+    # print("field coords: ", json_list)
+    # print("field tracing: ", tracing_list)
+   
+    # print("list of tracings: ", tracing_list)
+    return json_list, tracing
  
 
 """
@@ -179,14 +200,14 @@ def valid_area(max_x, max_y, min_x, min_y):
         return False
 
  
-"""
-Creates the json file with the bbox coordinates
-"""
-def create_json(list_of_dict):
+# """
+# Creates the json file with the bbox coordinates
+# """
+# def create_json(list_of_dict):
     
-    # store the data into a new json file
-    with open("bbox_coord.json", 'w') as outfile: 
-        json.dump(list_of_dict, outfile)
+#     # store the data into a new json file
+#     with open("bbox_coord.json", 'w') as outfile: 
+#         json.dump(list_of_dict, outfile)
     
 
 
@@ -260,11 +281,7 @@ def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
     return max_x, min_x, max_y,  min_y
 
 
-def get_tracing(im, pixels, max_x, min_x, max_y, min_y, box_num):
-    # im.show()
-
-    tracing = []
-    tracing.append(box_num)
+def get_tracing(pixels, tracing, max_x, min_x, max_y, min_y):
   
     for x in range(min_x, max_x):
         for y in range(min_y, max_y):
@@ -310,140 +327,6 @@ def check_coord(x, y, max_x, min_x, max_y, min_y):
   return max_x, min_x, max_y,  min_y
 
 
-def word_segmentation():
-
-    # load the json file
-    json_file = open('bbox_coord.json')
-    letters = json.load(json_file)
-    json_list = {}
-    json_list = []
-
-    tracing_json = open('tracing_list.json')
-    tracings = json.load(tracing_json)
-    
-    for fields in letters:
-        characters = {}
-        char_points = []
-        path = 'fields/' + list(fields.keys())[0]
-        field_img = cv2.imread(path, 1)
-
-        if field_img is None:
-            print("Issues opening the image")
-            exit(1)
-
-        # print("fields : ", fields)
-        
-        for field_name, dicts in fields.items():
-            # print("dicts : ", dicts)
-             
-            for box in dicts:
-                # print("box: ", box)
-                name = box['box']
-                #print("name:", name)
-                x = int(box['x'])
-                y = int(box['y'])
-                w = int(box['w'])
-                h = int(box['h'])
-                word_img = field_img[y:y+h, x:x+w]
-
-                if word_img is None:
-                    print("we had an issue reading the image ")
-
-                # How many times does the height fits into the width?
-                ratio = w / h 
-                ratio_constrain=1.5
-                width_constrain=40
-                block_size=10
-                step_size=5
-                thresh=10
-
-                # Condition to run the slicing character approach
-                if ratio > ratio_constrain and w > width_constrain:
-                    # Performs somre preprocessing to the image
-                    gray_img = cv2.cvtColor(word_img, cv2.COLOR_BGR2GRAY)
-                    _, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
-                    # Remove long horizontal lines
-                    res_op_1 = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
-                    thresh_img -= res_op_1
-                    # Calculate the image vertical projection histogram
-                    word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = create_h_v_image_proj(thresh_img)
-                    # Get characters
-                    if len(word_v_hist_proj) > block_size:
-                        seg_points = segmentation_points(word_v_hist_proj, block_size, step_size, thresh)
-                        # Improve segmentation positions
-                        seg_points = local_search(word_v_hist_proj, seg_points, block_size // 2)
-                        # Pixel transition count
-                        seg_points = pixel_transition_count(thresh_img, seg_points)
-                        # Update x coordinate in respect of original image
-                        seg_points = [int(char_x + x) for char_x in seg_points]
-                        # Keeps track of the original coordinates so then segmentation points
-                        # can be converted to coordinates
-                        if seg_points != []:
-                            char_points.append({"orig_coords": box, "char_coords": seg_points})
-                        else:
-                            char_points.append(box)
-                else:
-                    char_points.append(box)
-
-            # From segmentation lines to actual x, y, w, and h inside the field
-            bbox_coords = []
-           
-            num_seq = 0 
-            for chars in char_points:
-                if "orig_coords" in chars.keys():
-                    orig_name = chars['orig_coords']['box']
-                    tracing_boxes = None
-                    for field_tracing in tracings:
-                      field_tracing_key = list(field_tracing.keys())[0]
-                      if field_tracing_key == field_name:
-                        items = field_tracing.items() 
-                        for box in items:
-                          if box[1][0][0] == orig_name:
-                            tracing_boxes = box[1][0][1:] 
-                            break
-                    print("final tracings:", tracing_boxes) 
-                    exit()
-                    orig_x = chars['orig_coords']['x']
-                    orig_y = chars['orig_coords']['y']
-                    orig_h = chars['orig_coords']['h']
-                    orig_w = chars['orig_coords']['w']
-                    # Keeps track of the previous segmentation line x position 
-                    prev_seg_line = orig_x
-                    seg_lines = chars['char_coords']
-                    for seg_line in seg_lines:
-                        x = prev_seg_line
-                        w = seg_line - prev_seg_line
-                        y = orig_y
-                        h = orig_h
-                        bbox_coords.append({"box": f"box_{num_seq}", "x": x, "y": y, "w": w, "h": h})
-                        num_seq += 1
-                        prev_seg_line = x + w
-                        # Append the last one, from the segmentation line to the end of the
-                        # field
-                    w = (orig_x + orig_w) - (x + w)
-                    bbox_coords.append({"box": f"box_{num_seq}", "x": prev_seg_line, "y": y, "w": w, "h": h})
-                    num_seq += 1
-                else:
-                    chars['box'] = f"box_{num_seq}"
-                    bbox_coords.append(chars)
-                    num_seq += 1
-                
-                
-                # Remove single pixel width characters (too small to be a character) 
-                for coord in bbox_coords:
-                    w = coord['w']
-                    h = coord['h']
-                    if w <= 2 or h <= 2:
-                        removed_seq_num = int(coord['box'].split("_")[1])
-                        num_seq = removed_seq_num
-                        bbox_coords.remove(coord)
-                 
-            characters[field_name] = bbox_coords
-      
-        json_list.append(characters)
-        
-                    
-    return json_list
 
 
 
@@ -597,3 +480,110 @@ def pixel_transition_count(thresh_img, seg_points):
         to_ret.append(seg_p)
     
     return to_ret
+
+
+
+def word_segmentation(bbox_list, field_img):
+    char_points = []
+    # cv2.imshow('img', field_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+  
+    for box in bbox_list:
+        # print("box: ", box)
+        name = box['box']
+        #print("name:", name)
+        x = int(box['x'])
+        y = int(box['y'])
+        w = int(box['w'])
+        h = int(box['h'])
+        word_img = field_img[y:y+h, x:x+w]
+
+        if word_img is None:
+            print("we had an issue reading the image ")
+
+        # How many times does the height fits into the width?
+        ratio = w / h 
+        ratio_constrain=1.5
+        width_constrain=40
+        block_size=10
+        step_size=5
+        thresh=10
+
+        # Condition to run the slicing character approach
+        if ratio > ratio_constrain and w > width_constrain:
+            # Performs somre preprocessing to the image
+            gray_img = cv2.cvtColor(word_img, cv2.COLOR_BGR2GRAY)
+            _, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+            # Remove long horizontal lines
+            res_op_1 = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
+            thresh_img -= res_op_1
+            # Calculate the image vertical projection histogram
+            word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = create_h_v_image_proj(thresh_img)
+            # Get characters
+            if len(word_v_hist_proj) > block_size:
+                seg_points = segmentation_points(word_v_hist_proj, block_size, step_size, thresh)
+                # Improve segmentation positions
+                seg_points = local_search(word_v_hist_proj, seg_points, block_size // 2)
+                # Pixel transition count
+                seg_points = pixel_transition_count(thresh_img, seg_points)
+                # Update x coordinate in respect of original image
+                seg_points = [int(char_x + x) for char_x in seg_points]
+                # Keeps track of the original coordinates so then segmentation points
+                # can be converted to coordinates
+                if seg_points != []:
+                    char_points.append({"orig_coords": box, "char_coords": seg_points})
+                else:
+                    char_points.append(box)
+        else:
+            char_points.append(box)
+
+    # From segmentation lines to actual x, y, w, and h inside the field
+    bbox_coords = []
+    
+    num_seq = 0 
+    for chars in char_points:
+        if "orig_coords" in chars.keys():
+            orig_name = chars['orig_coords']['box']        
+            orig_x = chars['orig_coords']['x']
+            orig_y = chars['orig_coords']['y']
+            orig_h = chars['orig_coords']['h']
+            orig_w = chars['orig_coords']['w']
+
+            # Keeps track of the previous segmentation line x position 
+            prev_seg_line = orig_x
+            seg_lines = chars['char_coords']
+            box_counter = 0
+            for seg_line in seg_lines:
+                # print("seg_line: ", seg_line)
+                x = prev_seg_line
+                w = seg_line - prev_seg_line
+                y = orig_y
+                h = orig_h
+                bbox_coords.append({"box": f"box_{num_seq}", "x": x, "y": y, "w": w, "h": h})
+                num_seq += 1
+                prev_seg_line = x + w
+                # Append the last one, from the segmentation line to the end of the
+                # field
+            w = (orig_x + orig_w) - (x + w)
+            bbox_coords.append({"box": f"box_{num_seq}", "x": prev_seg_line, "y": y, "w": w, "h": h})
+            num_seq += 1
+        else:
+            chars['box'] = f"box_{num_seq}"
+            bbox_coords.append(chars)
+            num_seq += 1
+        
+        
+        # Remove single pixel width characters (too small to be a character) 
+        for coord in bbox_coords:
+            w = coord['w']
+            h = coord['h']
+            if w <= 2 or h <= 2:
+                removed_seq_num = int(coord['box'].split("_")[1])
+                num_seq = removed_seq_num
+                bbox_coords.remove(coord)
+
+    # print(bbox_coords)
+            
+    # We need to return the bbox_list       
+    return bbox_coords

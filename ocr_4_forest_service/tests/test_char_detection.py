@@ -17,6 +17,7 @@ def test_field_0():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -33,7 +34,7 @@ def test_field_0():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -107,6 +108,7 @@ def test_field_1():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -123,7 +125,7 @@ def test_field_1():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -197,6 +199,7 @@ def test_field_2():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -213,7 +216,7 @@ def test_field_2():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -287,6 +290,7 @@ def test_field_3():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -303,7 +307,7 @@ def test_field_3():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -377,6 +381,7 @@ def test_field_4():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -393,7 +398,7 @@ def test_field_4():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -467,6 +472,7 @@ def test_field_5():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -483,7 +489,7 @@ def test_field_5():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -558,6 +564,7 @@ def test_field_6():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -574,7 +581,7 @@ def test_field_6():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -648,6 +655,7 @@ def test_field_7():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -664,7 +672,7 @@ def test_field_7():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -738,6 +746,7 @@ def test_field_8():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -754,7 +763,7 @@ def test_field_8():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -827,7 +836,8 @@ def test_field_9():
     image = 'field_9.jpg'
 	
     list_of_dict = []
-    json_dict = {} 
+    json_dict = {}
+    tracing_dict = {} 
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -844,7 +854,7 @@ def test_field_9():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -917,6 +927,7 @@ def test_field_10():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -933,7 +944,7 @@ def test_field_10():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1007,6 +1018,7 @@ def test_field_11():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -1023,7 +1035,7 @@ def test_field_11():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1097,6 +1109,7 @@ def test_field_12():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -1113,7 +1126,7 @@ def test_field_12():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1187,6 +1200,7 @@ def test_field_13():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -1203,7 +1217,7 @@ def test_field_13():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1276,6 +1290,7 @@ def test_field_14():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -1292,7 +1307,7 @@ def test_field_14():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)
@@ -1365,6 +1380,7 @@ def test_field_15():
 	
     list_of_dict = []
     json_dict = {} 
+    tracing_dict = {}
 
     # if the output file has already been generated, 
     # clean it out before appending to it
@@ -1381,7 +1397,7 @@ def test_field_15():
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     #dst = cv2.fastNlMeansDenoisingColored(con_img, None, 10, 10, 7, 21)
         
-    json_data = find_char(con_img, image, json_dict)
+    json_data = find_char(con_img, image, json_dict, tracing_dict)
     list_of_dict.append(json_data)
 
     create_json(list_of_dict)

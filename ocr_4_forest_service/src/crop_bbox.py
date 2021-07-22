@@ -94,7 +94,7 @@ def crop(fields):
                 # cropping the image
                 cropped_img = img[y:y + h, x:x + w]
 
-                cropped_img = tracing_image(cropped_img, new_d, name, x, y)
+                # cropped_img = tracing_image(cropped_img, new_d, name, x, y)
             
                 # display the image to user
                 if cropped_img is not None:

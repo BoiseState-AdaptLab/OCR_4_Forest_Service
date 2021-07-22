@@ -11,8 +11,8 @@ def test_cropFields():
     output_dir()
 
     # read in imputs
-    image = cv2.imread("../inputs/highRes_ForestService.jpg")
-    json_file = open("../inputs/all_fields_conservative.json")
+    image = cv2.imread("../inputs/forms_images/highRes_ForestService.jpg")
+    json_file = open("../inputs/jsons/all_fields_conservative.json")
     fields = json.load(json_file)
 
     # cropping function
