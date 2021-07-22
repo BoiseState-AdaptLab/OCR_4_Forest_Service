@@ -20,7 +20,7 @@ import numpy as np
 """
 Definition of the main fuction
 """
-def char_detection(field_imgs): # char_detection takes in a list of field images 
+def char_detection(field_img): # char_detection takes in a list of field images 
 
     # this is the list where 
     # each images data is stored 
@@ -28,55 +28,118 @@ def char_detection(field_imgs): # char_detection takes in a list of field images
     list_of_tracings = []
     single_chars_img_list = []
 
-    #for each image in the output directory:
-    for image in field_imgs:
+    con_img = img_preprocess(field_img)
 
-        # read in the image in gray scale
-        img = cv2.imread(image, 0) 
-        if img is None:
-            print(path)
-            exit(1)
+    bbox_list, traces_list = find_char(con_img)
 
-        con_img = img_preprocess(img)
+    # print("field coords: ", bbox_list)
+    # print("field tracing: ", traces_list)
 
-        bbox_list, traces_list = find_char(con_img)
+    bbox_list = word_segmentation(bbox_list, img)
 
-        # print("field coords: ", bbox_list)
-        # print("field tracing: ", traces_list)
+    traces_dict = update_traces(bbox_list, traces_list)
 
-        bbox_list = word_segmentation(bbox_list, img)
-        traces_dict = update_traces(bbox_list, traces_list)
+    single_chars_list = single_chars(bbox_list, traces_dict)
 
-        single_chars_list = single_chars(bbox_list, traces_dict)
-
-        single_chars_img_list.append(single_chars_list)
+    single_chars_img_list.append(single_chars_list)
 
     return single_chars_img_list
 
    
+# @param: image object
+# @return: list of image objects
+# This function takes in an image 
+# objects, performs character detection 
+# on the image, saves the tracing and 
+# creates the another image with the 
+# trace of the letter.  
+def trace(image):
+    # this is the list where 
+    # each images data is stored 
+    list_of_dict = []
+    list_of_tracings = []
+ 
+    json_dict = {} 
+    tracing_dict = {}
+
+    # 1) We need to perform character 
+    # detection on the field image
+    # Char_detection contains: image preprocessing, 
+    con_img = img_preprocess(image)
+
+    json_data, tracing_data = find_char(con_img)
+
+    # print("json_data", json_data)
+
+    list_of_dict.append(json_data)
+    
+    list_of_tracings.append(tracing_data)
+    list_images = []
+   
+    for field in list_of_dict:
+        for box in field.items():
+            for bbox in box[1]:
+                box_name = bbox['box']
+                x_coord = bbox['x']
+                y_coord = bbox['y']
+                width = bbox['w']
+                height = bbox['h']
+                for im in list_of_tracings:
+                    for list in im.items():
+                        for pix_list in list[1]:
+                            #b_box is the list of pixels
+                            b_name = pix_list[0]
+                            if b_name == box_name:
+                                new_image = create_img(pix_list, x_coord, y_coord, width, height)
+                                list_images.append(new_image)
+    return list_images
+
   
-def update_traces(bbox_list, traces_list):
-    final_traces = {}
+# def update_traces(bbox_list, traces_list):
+#     final_traces = {}
 
-    for dict in bbox_list:
+#     for dict in bbox_list:
      
-        start = dict['x']
-        end = start + dict['w']
+#         start = dict['x']
+#         end = start + dict['w']
 
-        for idx, pix in enumerate(traces_list):
-            if pix[0] == end-1:
-                end_line = idx
+#         for idx, pix in enumerate(traces_list):
+#             if pix[0] == end-1:
+#                 end_line = idx
 
-        for idx, pix in enumerate(traces_list):
-            if pix[0] == start:
-                start_line = idx
-                break
+#         for idx, pix in enumerate(traces_list):
+#             if pix[0] == start:
+#                 start_line = idx
+#                 break
+
+#         final_traces[dict['box']] = traces_list[start_line:end_line]
             
-        print(type(traces_list[start_line:end_line]))
-        final_traces[dict['box']] = traces_list[start_line:end_line]
-            
-    # print(type(final_traces) )
-    return final_traces
+#     # print(type(final_traces) )
+#     return final_traces
+
+def create_img(pix_list, x_coord, y_coord, width, height):
+
+    # print("x and y coords: ", x_coord, y_coord)
+    new_image = np.zeros((width, height, 3), np.uint8)
+    new_image[:] = (255, 255, 255)
+ 
+
+    nI = len(pix_list)
+    for pix in range(1, nI):
+        # print(pix_list[pix])
+        # # exit()
+        # print("tracing coord: ", pix_list[pix][0], pix_list[pix][1])
+    
+        # tuple = (pix_list[pix][0]-x_coord, pix_list[pix][1]-y_coord)
+        new_image[pix_list[pix][0]-x_coord, pix_list[pix][1]-y_coord] = [0, 0, 0]
+        # image[pix_list[pix][0], pix_list[pix][1]] = [255, 255]
+        # print("result", tuple)
+        # print(im.size)
+        # pix = im.getpixel(tuple)
+        # # # print(pix)s
+        # new_im.putpixel(tuple, pix)
+
+    return new_image
 
 
 def single_chars(bbox_list, traces_dict):
@@ -84,6 +147,43 @@ def single_chars(bbox_list, traces_dict):
     # this is the data structure that holds
     # all the single char image objects to return
     single_chars_list = []
+
+    for box in bbox_list:
+        box_name = box['box']
+        traces = traces_dict[box_name]
+        
+        blank_image = np.zeros((box['h'],box['w']), np.uint8)
+        blank_image[:] = 255
+        # print(blank_image.shape)
+
+        for x, y in traces:
+            # print("trace x:", x)
+            # print("trace y: ", y)
+            # print("bbox_x: ",box['x'] )
+            # print("bbox_y: ",box['y'] )
+
+            tuple = (x-box['x'], y-box['y'])
+            # print("tuple: ", tuple)
+         
+            # print("result", tuple)
+            # print(im.size)
+            # pix = im.getpixel(tuple)
+            # print(pix)s
+            try:
+                blank_image[tuple[1]][tuple[0]] = 0
+            except:
+                print("trace x:", x)
+                print("trace y: ", y)
+                print("bbox_x: ",box['x'] )
+                print("bbox_y: ",box['y'] )
+                print("tuple: ", tuple)
+
+            
+
+        cv2.imshow('img', blank_image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        # exit()
 
 
 
@@ -158,9 +258,9 @@ def find_char(dst):
                                     'h': max_y-min_y})
 
                     # print("json list: ", json_list)
-                    # im.show()
+                    im.show()
                     
-                    tracing = get_tracing(pixels, tracing, max_x, min_x, max_y, min_y)
+                    tracing = get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y)
                     # print("## Tracing: ",tracing)
                     tracing_list.append(tracing)
                     i = i + 1
@@ -176,11 +276,11 @@ def find_char(dst):
                 y = y + 2
         
         x = x + 2
-    # print("field coords: ", json_list)
-    # print("field tracing: ", tracing_list)
+    print("field coords: ", json_list)
+    print("field tracing: ", tracing_list)
    
     # print("list of tracings: ", tracing_list)
-    return json_list, tracing
+    return json_list, tracing_list
  
 
 """
@@ -281,16 +381,19 @@ def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
     return max_x, min_x, max_y,  min_y
 
 
-def get_tracing(pixels, tracing, max_x, min_x, max_y, min_y):
+def get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y):
+    tracing_dict = {}
+    tracing = []
   
     for x in range(min_x, max_x):
         for y in range(min_y, max_y):
             
             if pixels[x, y] == (0,  255, 0):
                 tracing.append((x,y))
+    tracing_dict[box_num] = tracing
     
     # We now have the entire tracing of the character
-    return tracing
+    return tracing_dict
 
 
 
@@ -555,7 +658,7 @@ def word_segmentation(bbox_list, field_img):
             seg_lines = chars['char_coords']
             box_counter = 0
             for seg_line in seg_lines:
-                # print("seg_line: ", seg_line)
+                print("seg_line: ", seg_line)
                 x = prev_seg_line
                 w = seg_line - prev_seg_line
                 y = orig_y
