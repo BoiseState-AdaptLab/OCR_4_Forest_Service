@@ -30,18 +30,26 @@ def char_detection(field_img): # char_detection takes in a list of field images
 
     con_img = img_preprocess(field_img)
 
-    bbox_list, traces_list = find_char(con_img)
+    single_char_list = trace(con_img)
 
     # print("field coords: ", bbox_list)
     # print("field tracing: ", traces_list)
+    word_segmentation_list = []
+    for image in single_char_list:
 
-    bbox_list = word_segmentation(bbox_list, img)
-
+        sliced_images = word_segmentation(image)
+        if type(sliced_images) == list:
+            word_segmentation_list.extend(sliced_images)
+        else:
+            word_segmentation_list.append(sliced_images)
+    
+    """
     traces_dict = update_traces(bbox_list, traces_list)
 
     single_chars_list = single_chars(bbox_list, traces_dict)
 
     single_chars_img_list.append(single_chars_list)
+    """
 
     return single_chars_img_list
 
@@ -54,44 +62,14 @@ def char_detection(field_img): # char_detection takes in a list of field images
 # creates the another image with the 
 # trace of the letter.  
 def trace(image):
-    # this is the list where 
-    # each images data is stored 
-    list_of_dict = []
-    list_of_tracings = []
- 
-    json_dict = {} 
-    tracing_dict = {}
-
-    # 1) We need to perform character 
-    # detection on the field image
-    # Char_detection contains: image preprocessing, 
-    con_img = img_preprocess(image)
-
-    json_data, tracing_data = find_char(con_img)
-
-    # print("json_data", json_data)
-
-    list_of_dict.append(json_data)
+    """Get all traces beloging to the character of the image.
+    """
+    json_data, tracing_data = find_char(image)
     
-    list_of_tracings.append(tracing_data)
-    list_images = []
+    list_images = single_chars(json_data, tracing_data)
    
-    for field in list_of_dict:
-        for box in field.items():
-            for bbox in box[1]:
-                box_name = bbox['box']
-                x_coord = bbox['x']
-                y_coord = bbox['y']
-                width = bbox['w']
-                height = bbox['h']
-                for im in list_of_tracings:
-                    for list in im.items():
-                        for pix_list in list[1]:
-                            #b_box is the list of pixels
-                            b_name = pix_list[0]
-                            if b_name == box_name:
-                                new_image = create_img(pix_list, x_coord, y_coord, width, height)
-                                list_images.append(new_image)
+    # new_image = create_img(pix_list, x_coord, y_coord, width, height)
+    
     return list_images
 
   
@@ -120,8 +98,8 @@ def trace(image):
 def create_img(pix_list, x_coord, y_coord, width, height):
 
     # print("x and y coords: ", x_coord, y_coord)
-    new_image = np.zeros((width, height, 3), np.uint8)
-    new_image[:] = (255, 255, 255)
+    new_image = np.zeros((width, height), np.uint8)
+    new_image[:] = 255
  
 
     nI = len(pix_list)
@@ -144,13 +122,18 @@ def create_img(pix_list, x_coord, y_coord, width, height):
 
 def single_chars(bbox_list, traces_dict):
 
+
     # this is the data structure that holds
     # all the single char image objects to return
     single_chars_list = []
-
+    print("traces_dict:", traces_dict)
     for box in bbox_list:
         box_name = box['box']
         traces = traces_dict[box_name]
+        print("traces:", traces)
+        #print("Box:", box)
+        #print("box_name:", box_name)
+        
         
         blank_image = np.zeros((box['h'],box['w']), np.uint8)
         blank_image[:] = 255
@@ -169,17 +152,16 @@ def single_chars(bbox_list, traces_dict):
             # print(im.size)
             # pix = im.getpixel(tuple)
             # print(pix)s
-            try:
-                blank_image[tuple[1]][tuple[0]] = 0
-            except:
-                print("trace x:", x)
-                print("trace y: ", y)
-                print("bbox_x: ",box['x'] )
-                print("bbox_y: ",box['y'] )
-                print("tuple: ", tuple)
-
+            blank_image[tuple[1]][tuple[0]] = 0
             
+            #print("trace x:", x)
+            #print("trace y: ", y)
+            #print("bbox_x: ",box['x'] )
+            #print("bbox_y: ",box['y'] )
+            #print("tuple: ", tuple)
 
+        
+        single_chars_list.append(blank_image)
         cv2.imshow('img', blank_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -215,7 +197,7 @@ It explores the character to find its max_x, min_x, max_y, min_y
 def find_char(dst):
 
     json_list = []
-    tracing_list = []
+    tracing_list = {}
     tracing = []
 
     max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
@@ -258,11 +240,12 @@ def find_char(dst):
                                     'h': max_y-min_y})
 
                     # print("json list: ", json_list)
-                    im.show()
+                    #im.show()
                     
                     tracing = get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y)
                     # print("## Tracing: ",tracing)
-                    tracing_list.append(tracing)
+                    tracing_list.update(**tracing)
+                    #tracing_list.append(tracing)
                     i = i + 1
                 y = 0
                 # exit()
@@ -276,8 +259,8 @@ def find_char(dst):
                 y = y + 2
         
         x = x + 2
-    print("field coords: ", json_list)
-    print("field tracing: ", tracing_list)
+    #print("field coords: ", json_list)
+    #print("field tracing: ", tracing_list)
    
     # print("list of tracings: ", tracing_list)
     return json_list, tracing_list
@@ -586,107 +569,51 @@ def pixel_transition_count(thresh_img, seg_points):
 
 
 
-def word_segmentation(bbox_list, field_img):
+def word_segmentation(image):
     char_points = []
     # cv2.imshow('img', field_img)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
   
-    for box in bbox_list:
-        # print("box: ", box)
-        name = box['box']
-        #print("name:", name)
-        x = int(box['x'])
-        y = int(box['y'])
-        w = int(box['w'])
-        h = int(box['h'])
-        word_img = field_img[y:y+h, x:x+w]
+    h, w = image.shape[:2]
+    # How many times does the height fits into the width?
+    ratio = w / h 
+    ratio_constrain=1.5
+    width_constrain=40
+    block_size=10
+    step_size=5
+    thresh=10
 
-        if word_img is None:
-            print("we had an issue reading the image ")
+    # Condition to run the slicing character approach
+    if ratio > ratio_constrain and w > width_constrain:
+        # Performs somre preprocessing to the image
+        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        #_, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+        # Remove long horizontal lines
+        res_op_1 = cv2.morphologyEx(gray_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
+        thresh_img -= res_op_1
+        # Calculate the image vertical projection histogram
+        word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = create_h_v_image_proj(thresh_img)
+        # Get characters
+        if len(word_v_hist_proj) > block_size:
+            seg_points = segmentation_points(word_v_hist_proj, block_size, step_size, thresh)
+            # Improve segmentation positions
+            seg_points = local_search(word_v_hist_proj, seg_points, block_size // 2)
+            # Pixel transition count
+            seg_points = pixel_transition_count(thresh_img, seg_points)
+            # Update x coordinate in respect of original image
+            seg_points = [int(char_x + x) for char_x in seg_points]
 
-        # How many times does the height fits into the width?
-        ratio = w / h 
-        ratio_constrain=1.5
-        width_constrain=40
-        block_size=10
-        step_size=5
-        thresh=10
+            prev_seg_point = 0
+            curr_seg_point = 0
+            images = []
+            for seg_point in seg_points:
+                curr_seg_point = seg_point
+                images.append(image[:,prev_seg_poing:curr_seg_point])
+                prev_seg_point = curr_seg_point
+            images.append(image[:,curr_seg_point:image.shape[1] - 1])
 
-        # Condition to run the slicing character approach
-        if ratio > ratio_constrain and w > width_constrain:
-            # Performs somre preprocessing to the image
-            gray_img = cv2.cvtColor(word_img, cv2.COLOR_BGR2GRAY)
-            _, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
-            # Remove long horizontal lines
-            res_op_1 = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
-            thresh_img -= res_op_1
-            # Calculate the image vertical projection histogram
-            word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = create_h_v_image_proj(thresh_img)
-            # Get characters
-            if len(word_v_hist_proj) > block_size:
-                seg_points = segmentation_points(word_v_hist_proj, block_size, step_size, thresh)
-                # Improve segmentation positions
-                seg_points = local_search(word_v_hist_proj, seg_points, block_size // 2)
-                # Pixel transition count
-                seg_points = pixel_transition_count(thresh_img, seg_points)
-                # Update x coordinate in respect of original image
-                seg_points = [int(char_x + x) for char_x in seg_points]
-                # Keeps track of the original coordinates so then segmentation points
-                # can be converted to coordinates
-                if seg_points != []:
-                    char_points.append({"orig_coords": box, "char_coords": seg_points})
-                else:
-                    char_points.append(box)
-        else:
-            char_points.append(box)
-
-    # From segmentation lines to actual x, y, w, and h inside the field
-    bbox_coords = []
-    
-    num_seq = 0 
-    for chars in char_points:
-        if "orig_coords" in chars.keys():
-            orig_name = chars['orig_coords']['box']        
-            orig_x = chars['orig_coords']['x']
-            orig_y = chars['orig_coords']['y']
-            orig_h = chars['orig_coords']['h']
-            orig_w = chars['orig_coords']['w']
-
-            # Keeps track of the previous segmentation line x position 
-            prev_seg_line = orig_x
-            seg_lines = chars['char_coords']
-            box_counter = 0
-            for seg_line in seg_lines:
-                print("seg_line: ", seg_line)
-                x = prev_seg_line
-                w = seg_line - prev_seg_line
-                y = orig_y
-                h = orig_h
-                bbox_coords.append({"box": f"box_{num_seq}", "x": x, "y": y, "w": w, "h": h})
-                num_seq += 1
-                prev_seg_line = x + w
-                # Append the last one, from the segmentation line to the end of the
-                # field
-            w = (orig_x + orig_w) - (x + w)
-            bbox_coords.append({"box": f"box_{num_seq}", "x": prev_seg_line, "y": y, "w": w, "h": h})
-            num_seq += 1
-        else:
-            chars['box'] = f"box_{num_seq}"
-            bbox_coords.append(chars)
-            num_seq += 1
-        
-        
-        # Remove single pixel width characters (too small to be a character) 
-        for coord in bbox_coords:
-            w = coord['w']
-            h = coord['h']
-            if w <= 2 or h <= 2:
-                removed_seq_num = int(coord['box'].split("_")[1])
-                num_seq = removed_seq_num
-                bbox_coords.remove(coord)
-
-    # print(bbox_coords)
+            return images
             
-    # We need to return the bbox_list       
-    return bbox_coords
+    else:
+        return image
