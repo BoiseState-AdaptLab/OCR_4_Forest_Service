@@ -38,13 +38,14 @@ def main():
         # 2) Once we have an aligned form, we crop each field
         # box out of the image and generate the new images in
         # a new directory 
-        crop_fields(args)
+        field_imgs = crop_fields(args)
 
         # 3) Now that we have field images, we  
         # detect single characters in the fields 
         # and generate a JSON file with the coordinates
         # of the detected characters
-        char_detection()
+        for image in field_imgs:
+            char_detection()
 
         # 4) We read the newly generated JSON file and crop
         # the single character images out of the fields and 

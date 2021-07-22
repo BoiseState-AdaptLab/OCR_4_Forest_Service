@@ -5,10 +5,11 @@ from ..src.char_detection import find_char
 from ..src.char_detection import img_preprocess
 from ..src.char_detection import word_segmentation
 from ..src.char_detection import update_traces
+from ..src.char_detection import single_chars
 
 def test_find_char():
 
-   img = cv2.imread('../fields/field_15.jpg', 1)
+   img = cv2.imread('sawtooth.jpeg', 1)
 
    dst = img_preprocess(img)
 
@@ -16,6 +17,8 @@ def test_find_char():
   
    bbox_list = word_segmentation(bbox_list, img)
 
-   traces_list = update_traces(bbox_list, traces_list)
+   traces_dict = update_traces(bbox_list, traces_list)
 
-   assert len(bbox_list) == 5
+   list_single_char_img = single_chars(bbox_list, traces_dict)
+
+   assert len(bbox_list) == 8
