@@ -12,8 +12,6 @@ def test_find_char():
 
    dst = img_preprocess(img)
 
-   
-
    single_char_list = trace(dst)
   
    #bbox_list = word_segmentation(bbox_list, img)
@@ -25,12 +23,14 @@ def test_find_char():
    assert len(single_char_list) == 8
 
 def test_word_segmentation():
+
   img = cv2.imread("test_word_segmentation/one_output_from_trace().jpg")
 
   characters = word_segmentation(img)
 
   for idx, char in enumerate(characters):
     cv2.imshow(f"result_{idx}", char)
+
   cv2.waitKey(0)
   cv2.destroyAllWindows()
 
