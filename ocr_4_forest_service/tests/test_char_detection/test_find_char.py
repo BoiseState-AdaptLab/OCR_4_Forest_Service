@@ -1,12 +1,12 @@
 # This file contains the test for the find_char functionality
 
 import cv2
-from ..src.char_detection import find_char
-from ..src.char_detection import img_preprocess
+from ...src.char_detection import find_char
+from ...src.char_detection import img_preprocess
 
 def test_find_char():
 
-   img = cv2.imread('../inputs/test-word.jpeg', 0)
+   img = cv2.imread('input_imgs/test-word.jpeg', 1)
 
    dst = img_preprocess(img)
 

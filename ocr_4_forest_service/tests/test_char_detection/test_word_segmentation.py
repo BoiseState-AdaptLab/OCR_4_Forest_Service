@@ -1,37 +1,41 @@
 # This file contains the test for the find_char functionality
 
 import cv2
-from ..src.char_detection import img_preprocess
-from ..src.char_detection import word_segmentation
-#from ..src.char_detection import update_traces
-from ..src.char_detection import trace
+from ...src.char_detection import trace
+from ...src.char_detection import img_preprocess
+from ...src.char_detection import word_segmentation
 
-def test_find_char():
+def test_word_segmentation():
 
-   img = cv2.imread('sawtooth.jpeg', 1)
+   img = cv2.imread('input_imgs/field_img.png', 1)
 
    dst = img_preprocess(img)
 
    single_char_list = trace(dst)
-  
-   #bbox_list = word_segmentation(bbox_list, img)
+#   for idx, char in enumerate(single_char_list):
+#       cv2.imshow(f"result_{idx}", char)
+#   cv2.waitKey(0)
+#   cv2.destroyAllWindows()
+   word_seg = []
+   for img in single_char_list:  
+       characters = word_segmentation(img)
 
-   #traces_dict = update_traces(bbox_list, traces_list)
+       if type(characters) == list:
+          # if the output is a list, we extend the list
+          word_seg.extend(characters)
+       else:
+           # if it's a signle image, we append it to the list
+           word_seg.append(characters)
 
-   #list_single_char_img = single_chars(bbox_list, traces_dict)
+   for idx, char in enumerate(word_seg):
+       cv2.imshow(f"result_{idx}", char)
 
-   assert len(single_char_list) == 8
+   cv2.waitKey(0)
+   cv2.destroyAllWindows()
 
-def test_word_segmentation():
+   assert len(word_seg) == 4
 
-  img = cv2.imread("test_word_segmentation/one_output_from_trace().jpg")
 
-  characters = word_segmentation(img)
 
-  for idx, char in enumerate(characters):
-    cv2.imshow(f"result_{idx}", char)
 
-  cv2.waitKey(0)
-  cv2.destroyAllWindows()
 
-  assert len(characters) == 3
