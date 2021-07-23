@@ -49,12 +49,7 @@ def main():
             on_field_single_chars = char_detection(image)
             single_chars.extend(on_field_single_chars)
 
-        # 4) We read the newly generated JSON file and crop
-        # the single character images out of the fields and 
-        # store them into a new directory
-        # crop_bbox(args)
-
-        # 5) Finally, we pre process each single character
+        # 4) Finally, we pre process each single character
         # image to minimize noise and refine the pen stroke.
         preprocessed_imgs = img_preprocessing(single_chars)
 

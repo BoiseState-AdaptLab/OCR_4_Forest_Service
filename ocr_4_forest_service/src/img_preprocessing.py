@@ -9,26 +9,12 @@ from os import path
 import shutil
 
 
-def img_preprocessing():
+def img_preprocessing(list_single_chars):
+    preprocessed = []
+    
+    for image in list_single_chars:
 
-    DIR = 'single_chars/'
-
-    # if it doesn't already exist, create the 
-    # folder where the preprocessed images will go
-    output_dir()
-
-
-    for image in os.listdir(DIR):
-        #set up the right string for the path 
-        path = "single_chars/" + image
-
-        # read in the image in gray scale
-        img = cv2.imread(path, 0) 
-        if img is None:
-            print(path)
-            exit(1)
-
-        ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        ret, thresh = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
         blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
     
 
@@ -38,9 +24,9 @@ def img_preprocessing():
         padded = add_padding(dst)
        
         resized = cv2.resize(padded, (28,28))
+        preprocessed.append(resized)
   
-        end_path = "preprocessed/" + image
-        cv2.imwrite(end_path, resized)
+    return preprocessed
 
   
 
@@ -53,19 +39,3 @@ def add_padding(im):
     return new_im
 
 
-
-    
-"""
- if the output dir already exists, it gets
- cleaned up. Otherwise, it gets created 
-"""
-def output_dir():
-    # if it already exists, clean it
-    if os.path.exists('preprocessed'):
-        try:
-            shutil.rmtree('preprocessed')
-        except:
-            print("Error: couldn't clean the preprocessed/ directory")
-    # else, create it
-    if not os.path.exists('preprocessed'):
-        os.makedirs('preprocessed')
