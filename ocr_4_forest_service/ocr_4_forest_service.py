@@ -44,22 +44,24 @@ def main():
         # detect single characters in the fields 
         # and generate a JSON file with the coordinates
         # of the detected characters
+        single_chars = []
         for image in field_imgs:
-            char_detection()
+            on_field_single_chars = char_detection(image)
+            single_chars.extend(on_field_single_chars)
 
         # 4) We read the newly generated JSON file and crop
         # the single character images out of the fields and 
         # store them into a new directory
-        crop_bbox(args)
+        # crop_bbox(args)
 
         # 5) Finally, we pre process each single character
         # image to minimize noise and refine the pen stroke.
-        img_preprocessing()
+        preprocessed_imgs = img_preprocessing(single_chars)
 
         # 6) This last step will generate a csv file with the RGB 
         # value of each pixel in the image - this csv file will
         # be the input for the Optical Character Recognition model. 
-        create_csv()
+        create_csv(preprocessed_imgs)
         
         print("Done Executing Production Pipeline!")
         

@@ -9,8 +9,6 @@
 # Generates a JSON file called bbox_coord.json the coordinates of each detected bounding box
 
 import cv2
-import json
-import os
 import os.path
 from os import path
 from PIL import Image
@@ -22,36 +20,25 @@ Definition of the main fuction
 """
 def char_detection(field_img): # char_detection takes in a list of field images 
 
-    # this is the list where 
-    # each images data is stored 
-    list_of_dict = []
-    list_of_tracings = []
-    single_chars_img_list = []
-
     con_img = img_preprocess(field_img)
 
     single_char_list = trace(con_img)
 
-    # print("field coords: ", bbox_list)
-    # print("field tracing: ", traces_list)
     word_segmentation_list = []
     for image in single_char_list:
 
         sliced_images = word_segmentation(image)
+        # the following code is necessary to avoid nested lists
+        # in word_segmentation_list
         if type(sliced_images) == list:
+            # if the output is a list, we extend the list
             word_segmentation_list.extend(sliced_images)
         else:
+            # if it's a signle image, we append it to the list
             word_segmentation_list.append(sliced_images)
     
-    """
-    traces_dict = update_traces(bbox_list, traces_list)
 
-    single_chars_list = single_chars(bbox_list, traces_dict)
-
-    single_chars_img_list.append(single_chars_list)
-    """
-
-    return single_chars_img_list
+    return word_segmentation_list
 
    
 # @param: image object
@@ -62,75 +49,27 @@ def char_detection(field_img): # char_detection takes in a list of field images
 # creates the another image with the 
 # trace of the letter.  
 def trace(image):
-    """Get all traces beloging to the character of the image.
+    """
+    Get all traces beloging to the character of the image.
     """
     json_data, tracing_data = find_char(image)
     
     list_images = single_chars(json_data, tracing_data)
-   
-    # new_image = create_img(pix_list, x_coord, y_coord, width, height)
     
     return list_images
-
-  
-# def update_traces(bbox_list, traces_list):
-#     final_traces = {}
-
-#     for dict in bbox_list:
-     
-#         start = dict['x']
-#         end = start + dict['w']
-
-#         for idx, pix in enumerate(traces_list):
-#             if pix[0] == end-1:
-#                 end_line = idx
-
-#         for idx, pix in enumerate(traces_list):
-#             if pix[0] == start:
-#                 start_line = idx
-#                 break
-
-#         final_traces[dict['box']] = traces_list[start_line:end_line]
-            
-#     # print(type(final_traces) )
-#     return final_traces
-
-def create_img(pix_list, x_coord, y_coord, width, height):
-
-    # print("x and y coords: ", x_coord, y_coord)
-    new_image = np.zeros((width, height), np.uint8)
-    new_image[:] = 255
- 
-
-    nI = len(pix_list)
-    for pix in range(1, nI):
-        # print(pix_list[pix])
-        # # exit()
-        # print("tracing coord: ", pix_list[pix][0], pix_list[pix][1])
-    
-        # tuple = (pix_list[pix][0]-x_coord, pix_list[pix][1]-y_coord)
-        new_image[pix_list[pix][0]-x_coord, pix_list[pix][1]-y_coord] = [0, 0, 0]
-        # image[pix_list[pix][0], pix_list[pix][1]] = [255, 255]
-        # print("result", tuple)
-        # print(im.size)
-        # pix = im.getpixel(tuple)
-        # # # print(pix)s
-        # new_im.putpixel(tuple, pix)
-
-    return new_image
 
 
 def single_chars(bbox_list, traces_dict):
 
-
     # this is the data structure that holds
     # all the single char image objects to return
     single_chars_list = []
-    print("traces_dict:", traces_dict)
+
+    # print("traces_dict:", traces_dict)
     for box in bbox_list:
         box_name = box['box']
         traces = traces_dict[box_name]
-        print("traces:", traces)
+        # print("traces:", traces)
         #print("Box:", box)
         #print("box_name:", box_name)
         
@@ -162,12 +101,10 @@ def single_chars(bbox_list, traces_dict):
 
         
         single_chars_list.append(blank_image)
-        cv2.imshow('img', blank_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('img', blank_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         # exit()
-
-
 
     return single_chars_list
 
@@ -282,16 +219,6 @@ def valid_area(max_x, max_y, min_x, min_y):
     else:
         return False
 
- 
-# """
-# Creates the json file with the bbox coordinates
-# """
-# def create_json(list_of_dict):
-    
-#     # store the data into a new json file
-#     with open("bbox_coord.json", 'w') as outfile: 
-#         json.dump(list_of_dict, outfile)
-    
 
 
 """
@@ -411,9 +338,6 @@ def check_coord(x, y, max_x, min_x, max_y, min_y):
     min_y = y
 
   return max_x, min_x, max_y,  min_y
-
-
-
 
 
 def create_h_v_image_proj(thresh_img):
@@ -570,7 +494,7 @@ def pixel_transition_count(thresh_img, seg_points):
 
 
 def word_segmentation(image):
-    char_points = []
+  
     #cv2.imshow('img', image)
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
