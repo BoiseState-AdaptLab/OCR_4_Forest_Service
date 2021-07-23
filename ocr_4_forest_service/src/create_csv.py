@@ -6,14 +6,11 @@
 
 from PIL import Image
 import cv2
-import os
 from os import path 
 import csv
 import json
 
-def create_csv():
-
-    DIR = 'preprocessed/'
+def create_csv(preprocessed_imgs):
 
     # open and clean the cvs file up so
     # that is it ready for a fresh set of data points
@@ -22,17 +19,13 @@ def create_csv():
     file.close()
 
    
-    for image in os.listdir(DIR):
-        path = 'preprocessed/'+image
-        # print(image)
-        img = cv2.imread(path, 0)
-        if img is None:
-            print("Cannot find image: ", path)
+    for image in preprocessed_imgs:
+        
 
         # we need to save the image using 
         # the pillow library to iterate through
         # its pixels
-        im = Image.fromarray(img)
+        im = Image.fromarray(image)
 
         #At this point, the image is ready
         #list of RGB values for each pixel in the image
@@ -96,22 +89,11 @@ def create_test_csv(args):
 
   
     for image in names:
-
-        #set up the right string for the path 
-        path = "preprocessed/" + image
-
-        # read in the image in gray scale
-        img = cv2.imread(path, 0) 
-        if img is None:
-            # print("here")
-            print(path)
-            exit(1)
-
         
         # we need to save the image using 
         # the pillow library to iterate through
         # its pixels
-        im = Image.fromarray(img)
+        im = Image.fromarray(image)
         
         #At this point, the image is ready
         #list of RGB values for each pixel in the image
