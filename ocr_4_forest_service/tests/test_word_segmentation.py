@@ -34,4 +34,4 @@ def test_word_segmentation():
   cv2.waitKey(0)
   cv2.destroyAllWindows()
 
-  assert len(word_segments) == 3
+  assert len(characters) == 3
