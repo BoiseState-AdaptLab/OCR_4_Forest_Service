@@ -33,12 +33,12 @@ def main():
         # 1) the first step consists in aligning the form
         # we want to process with one of our templates in 
         # order to be able to work with know xy-coordinates 
-        form_alignment(args)
+        aligned = form_alignment(args)
 
         # 2) Once we have an aligned form, we crop each field
         # box out of the image and generate the new images in
         # a new directory 
-        field_imgs = crop_fields(args)
+        field_imgs = crop_fields(args, aligned)
 
         # 3) Now that we have field images, we  
         # detect single characters in the fields 

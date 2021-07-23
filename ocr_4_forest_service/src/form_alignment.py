@@ -7,19 +7,18 @@ import numpy as np
 import imutils
 
 
-
 def form_alignment(args):
     
     max_features = 1000
     keep_percent = 0.2
-
 
     # read the input image in
     temp, form = read_inputs(args)
 
     # align image and save it to file
     aligned = align_images(form, temp, max_features, keep_percent)
-    cv2.imwrite('alignedImage.jpg', aligned)
+    
+    return aligned
    
 
 

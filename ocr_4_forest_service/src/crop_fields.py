@@ -6,44 +6,21 @@
 #              out of the form and stores them as new images in a newly generated fields/ directory.
  
 import cv2
-import os
 import json
-import shutil
+
 
 
 """
  Performs command line parsing and function calls
 """
-def crop_fields(args):
+def crop_fields(args, form):
 
     # read the input image in
-    form, fields = read_inputs(args)
-
-    # create the output directory 
-    # to store the images
-    output_dir()
+    fields = read_inputs(args)
 
     # crop each field out of the 
     # form and stores them in fields/
-    crop(form, fields)
-
-
-
-    
-"""
- if the output dir already exists, it gets
- cleaned up. Otherwise, it gets created 
-"""
-def output_dir():
-    # if it already exists, clean it
-    if os.path.exists('fields'):
-        try:
-            shutil.rmtree('fields')
-        except:
-            print("Error: couldn't clean the fields/ directory")
-    # else, create it
-    if not os.path.exists('fields'):
-        os.makedirs('fields')
+    return crop(form, fields)
 
 
 """
@@ -51,14 +28,12 @@ def output_dir():
  json file 
 """
 def read_inputs(args):
-    # load input image
-    form = cv2.imread("alignedImage.jpg")
     
     # load the json file
     json_file = open(args["coord"])
     fields = json.load(json_file)
 
-    return form, fields
+    return fields
 
 
 """
@@ -66,7 +41,8 @@ def read_inputs(args):
  portion of the image and returns it
 """
 def crop(image, json_file):
-    i = 0
+
+    field_imgs = []
 
     for field in json_file['fields']:
        
@@ -81,14 +57,14 @@ def crop(image, json_file):
         # display the image to user
         if cropped_img is not None:
             
-            # cv2.imshow(window_name, cropped_img)
-            cv2.imwrite('fields/field_{num}.jpg'.format(num = i), cropped_img)
+            field_imgs.append(cropped_img)
     
-
         else:
-            print("Error: no image has been read.")
+            print("Error: no image found [inside crop_fields/crop()].")
+            exit(1)
 
-        i = i + 1 
+    return field_imgs
+        
 
 
 

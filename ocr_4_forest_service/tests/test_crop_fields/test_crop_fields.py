@@ -1,31 +1,29 @@
 # This file contains the test function for the crop field functionality. 
 
-from ..src.crop_fields import crop
-from ..src.crop_fields import output_dir
+from ...src.crop_fields import crop
+from ...src.form_alignment import align_images
 import cv2
 import json
-import os
 
 def test_cropFields():
-    DIR = 'fields/'
-    output_dir()
+
+    max_features = 1000
+    keep_percent = 0.2
 
     # read in imputs
-    image = cv2.imread("../inputs/forms_images/highRes_ForestService.jpg")
-    json_file = open("../inputs/jsons/all_fields_conservative.json")
+    form = cv2.imread('../../inputs/forms/site_an_sum_25.jpeg')
+    temp = cv2.imread('../../inputs/forms/template2.jpg')
+
+    json_file = open("../../inputs/jsons/template2_field_coord.json")
     fields = json.load(json_file)
 
+    aligned = align_images(form, temp, max_features, keep_percent)
     # cropping function
-    crop(image, fields)
-
-    # we need to assert that the directory
-    # of images that the output_dir function  
-    # gets filled with the right amout of 
-    # images by the crop function. 
+    field_imgs = crop(aligned, fields)
 
     i = 0
  
-    for image in os.listdir(DIR):
+    for image in field_imgs:
         i = i + 1
 
     assert i == 16 

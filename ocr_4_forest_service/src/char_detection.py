@@ -511,8 +511,8 @@ def word_segmentation(image):
     # Condition to run the slicing character approach
     if ratio > ratio_constrain and w > width_constrain:
         # Performs somre preprocessing to the image
-        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        _, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+        # gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, thresh_img = cv2.threshold(image, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
         #cv2.imshow('thresholding', thresh_img)
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()
