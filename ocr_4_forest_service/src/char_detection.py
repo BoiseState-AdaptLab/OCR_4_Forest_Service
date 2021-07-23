@@ -571,9 +571,9 @@ def pixel_transition_count(thresh_img, seg_points):
 
 def word_segmentation(image):
     char_points = []
-    # cv2.imshow('img', field_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    #cv2.imshow('img', image)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
   
     h, w = image.shape[:2]
     # How many times does the height fits into the width?
@@ -588,9 +588,12 @@ def word_segmentation(image):
     if ratio > ratio_constrain and w > width_constrain:
         # Performs somre preprocessing to the image
         gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        #_, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+        _, thresh_img = cv2.threshold(gray_img, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+        #cv2.imshow('thresholding', thresh_img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
         # Remove long horizontal lines
-        res_op_1 = cv2.morphologyEx(gray_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
+        res_op_1 = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
         thresh_img -= res_op_1
         # Calculate the image vertical projection histogram
         word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = create_h_v_image_proj(thresh_img)
@@ -602,14 +605,14 @@ def word_segmentation(image):
             # Pixel transition count
             seg_points = pixel_transition_count(thresh_img, seg_points)
             # Update x coordinate in respect of original image
-            seg_points = [int(char_x + x) for char_x in seg_points]
+            #seg_points = [int(char_x + x) for char_x in seg_points]
 
             prev_seg_point = 0
             curr_seg_point = 0
             images = []
             for seg_point in seg_points:
                 curr_seg_point = seg_point
-                images.append(image[:,prev_seg_poing:curr_seg_point])
+                images.append(image[:,prev_seg_point:curr_seg_point])
                 prev_seg_point = curr_seg_point
             images.append(image[:,curr_seg_point:image.shape[1] - 1])
 
