@@ -25,15 +25,7 @@ def char_detection(field_img): # char_detection takes in a list of field images
     for image in single_char_list:
 
         sliced_images = word_segmentation(image)
-        # the following code is necessary to avoid nested lists
-        # in word_segmentation_list
-        if type(sliced_images) == list:
-            # if the output is a list, we extend the list
-            word_segmentation_list.extend(sliced_images)
-        else:
-            # if it's a signle image, we append it to the list
-            word_segmentation_list.append(sliced_images)
-    
+        word_segmentation_list.extend(sliced_images)
 
     return word_segmentation_list
 
@@ -49,9 +41,9 @@ def trace(image):
     """
     Get all traces beloging to the character of the image.
     """
-    json_data, tracing_data = find_char(image)
+    dict_bbox_coord, tracing_data = find_char(image)
     
-    list_images = single_chars(json_data, tracing_data)
+    list_images = single_chars(dict_bbox_coord, tracing_data)
     
     return list_images
 
@@ -463,7 +455,6 @@ def pixel_transition_count(thresh_img, seg_points):
 
 def word_segmentation(image):
 
-  
     h, w = image.shape[:2]
     # How many times does the height fits into the width?
     ratio = w / h 
@@ -504,4 +495,4 @@ def word_segmentation(image):
             return images
             
     else:
-        return image
+        return [image]

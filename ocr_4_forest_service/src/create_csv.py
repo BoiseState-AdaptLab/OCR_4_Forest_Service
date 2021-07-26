@@ -1,8 +1,8 @@
 # Author: Floriana Ciaglia
 # Date: July 13, 2020
 # File: This is the last step of our pipeline where we reccord 
-# all the RGB values of each pixel from each preprocessed image and store the 
-# data into a csv file. 
+#       all the RGB values of each pixel from each preprocessed image and store the 
+#       data into a csv file. 
 
 from PIL import Image
 from os import path 
@@ -64,9 +64,9 @@ def create_test_csv(preprocessed_imgs):
 
     # open and clean the cvs file up so
     # that is it ready for a fresh set of data points
-    file = open("test_data.csv","w")
-    file.truncate(0)
-    file.close()
+    # file = open("test_data.csv","w")
+    # file.truncate(0)
+    # file.close()
 
   
     for (image, classi) in preprocessed_imgs:

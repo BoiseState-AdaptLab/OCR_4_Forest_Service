@@ -11,6 +11,7 @@ from src.img_preprocessing import img_test_preprocessing
 from src.create_csv import create_csv
 from src.create_csv import create_test_csv
 import argparse
+import cv2
 
 
 def main():
@@ -27,14 +28,22 @@ def main():
         help="Testing pipeline execution flag. If not specified, the program executes in production mode")
     args = vars(ap.parse_args())
 
+
+    # load input image
+    form = cv2.imread(args["input"])
+
+    # load template image
+    temp = cv2.imread(args["template"])
+
     # the main functions are called in order of execution
     # determined by the pipeline
 
     if args['t'] is False:
+
         # 1) the first step consists in aligning the form
         # we want to process with one of our templates in 
         # order to be able to work with know xy-coordinates 
-        aligned = form_alignment(args)
+        aligned = form_alignment(temp, form)
 
         # 2) Once we have an aligned form, we crop each field
         # box out of the image and pass it to character detection

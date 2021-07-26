@@ -3,9 +3,7 @@
 # This script preprocesses the single letter images from the Forest Service Form and returns
 # the preprocessed image in a list
 
-import cv2
-from os import path 
-
+import cv2 
 
 
 def img_preprocessing(list_single_chars):

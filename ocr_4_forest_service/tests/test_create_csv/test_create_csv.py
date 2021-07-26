@@ -3,10 +3,14 @@
 from ...src.create_csv import create_csv
 import os
 import csv
+import cv2
 
 def test_create_csv():
 
-    create_csv()
+    preprocessed_imgs = []
+    img = cv2.imread('thresh.png')
+    preprocessed_imgs.append(img)    
+    create_csv(preprocessed_imgs)
 
     # count how many lines the csv file has
     # and assert that they match with the 
@@ -16,8 +20,5 @@ def test_create_csv():
     reader = csv.reader(file)
     lines= len(list(reader))
 
-    count = 0
-    for img in os.listdir('preprocessed/'):
-        count = count + 1
     
-    assert count == lines
+    assert len(preprocessed_imgs) == lines

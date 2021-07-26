@@ -13,7 +13,7 @@ def crop_bbox(args):
     # open json file bbox_coord.json with bbox coordinates
     fields = open_json(args)
 
-    return crop(fields, args['input'])
+    return crop(fields, args["input"])
     
     
 
@@ -35,6 +35,8 @@ def crop(json, image):
 
     # open form as an image
     img = cv2.imread(image)
+    if img is None:
+        print("Error: no image has been read")
 
     for char in json['character']:
        
