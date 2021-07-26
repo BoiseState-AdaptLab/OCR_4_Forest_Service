@@ -7,9 +7,11 @@ from src.form_alignment import form_alignment
 from src.crop_bbox import crop_bbox
 from src.char_detection import char_detection
 from src.img_preprocessing import img_preprocessing
+from src.img_preprocessing import img_test_preprocessing
 from src.create_csv import create_csv
 from src.create_csv import create_test_csv
 import argparse
+import cv2
 
 
 def main():
@@ -67,16 +69,16 @@ def main():
         # 1) We begin the execution from the bounding box 
         # cropping because the JSON file provided was 
         # manually generated to incorpotate single characters.
-        crop_bbox(args)
+        single_chars = crop_bbox(args)
 
         # 2) From this step onward, the execution is the same 
         # as the production pipeline.
-        img_preprocessing()
+        preprocessed_imgs = img_test_preprocessing(single_chars)
 
         # 3) Instead of hard-coding the classification to zero
         # in the csv file, in the testing pipeline we know the
         # correct classifications to store in the csv file. 
-        create_test_csv(args)
+        create_test_csv(preprocessed_imgs)
 
         print("Done Executing Testing Pipeline!")
         

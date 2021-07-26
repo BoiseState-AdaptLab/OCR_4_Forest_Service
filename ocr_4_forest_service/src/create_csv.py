@@ -48,17 +48,10 @@ def create_csv(preprocessed_imgs):
 # This version of the function will 
 # create a csv file with the RGB values
 # of each pixel of the image and its classification    
-def create_test_csv(args):
-
-    #read data from JSON file
-    f = open(args["coord"])
-
-    #returns JSON object as a dictionary
-    data = json.load(f)
+def create_test_csv(preprocessed_imgs):
 
     # create a dictionary to map each letter/digit to a number 
     class_dict = {}
-    data_dict = {}
     counter = 0
 
     # these are all the possible valid classifications
@@ -66,18 +59,14 @@ def create_test_csv(args):
             'F','G','H','I','J','K','L','M','N','O', 'P','Q','R','S','T',
             'U','V','W','X','Y', 'Z', 'a','b','d','e','f','g','h','n','q','r','t']
 
-    # Iterating through the json
-    # list and populating the dict
-    for entry in data['character']:
-        data_dict[entry['img']] = entry['class']
-
 
     for clas in classifications:
         class_dict[clas]=counter
         counter = counter + 1
 
-    names = [name for name in data_dict]
+    # print("class dict: ", class_dict)
 
+    
     # open and clean the cvs file up so
     # that is it ready for a fresh set of data points
     file = open("test_data.csv","w")
@@ -85,7 +74,7 @@ def create_test_csv(args):
     file.close()
 
   
-    for image in names:
+    for (image, classi) in preprocessed_imgs:
         
         # we need to save the image using 
         # the pillow library to iterate through
@@ -95,19 +84,18 @@ def create_test_csv(args):
         #At this point, the image is ready
         #list of RGB values for each pixel in the image
         pix = []
+
         #classification in number
-        classi = data_dict[image]
         numeric_class = class_dict[classi]
 
         #the first column in the csv file is the classification
         pix.append(numeric_class)
     
-
         #iterate through each pixel in the image and store its RBG value into a list
         for x in range(28):
             for y in range(28):
                 rbg_val = im.getpixel((x,y))
-                pix.append(rbg_val)
+                pix.append(rbg_val[0])
     
         with open('test_data.csv', 'a', newline='') as file:
             writer = csv.writer(file)
