@@ -2,14 +2,11 @@
 # Date: May 14th, 2021
 
 # This program creates a bounding box around a discrete letter by:
-#       - take a field image as an input
-#       - iterate through each pixel in the image
-#       - keep track of max x, max y, min x, min y
-
-# Generates a JSON file called bbox_coord.json the coordinates of each detected bounding box
+#       - taking a field image as an input
+#       - iterating through each pixel in the image
+#       - keeping track of max x, max y, min x, min y
 
 import cv2
-import os.path
 from os import path
 from PIL import Image
 from queue import LifoQueue
@@ -65,46 +62,23 @@ def single_chars(bbox_list, traces_dict):
     # all the single char image objects to return
     single_chars_list = []
 
-    # print("traces_dict:", traces_dict)
+ 
     for box in bbox_list:
         box_name = box['box']
         traces = traces_dict[box_name]
-        # print("traces:", traces)
-        #print("Box:", box)
-        #print("box_name:", box_name)
-        
         
         blank_image = np.zeros((box['h'],box['w']), np.uint8)
         blank_image[:] = 255
-        # print(blank_image.shape)
+    
 
         for x, y in traces:
-            # print("trace x:", x)
-            # print("trace y: ", y)
-            # print("bbox_x: ",box['x'] )
-            # print("bbox_y: ",box['y'] )
-
+      
             tuple = (x-box['x'], y-box['y'])
-            # print("tuple: ", tuple)
-         
-            # print("result", tuple)
-            # print(im.size)
-            # pix = im.getpixel(tuple)
-            # print(pix)s
+        
             blank_image[tuple[1]][tuple[0]] = 0
-            
-            #print("trace x:", x)
-            #print("trace y: ", y)
-            #print("bbox_x: ",box['x'] )
-            #print("bbox_y: ",box['y'] )
-            #print("tuple: ", tuple)
 
         
         single_chars_list.append(blank_image)
-        # cv2.imshow('img', blank_image)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        # exit()
 
     return single_chars_list
 
@@ -114,14 +88,12 @@ Performs the image preprocessing on the field image
 before bounding boxes identification
 """
 def img_preprocess(img):
+
      #perform the image preprocessing stepss
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-    # cv2.imshow('img', con_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
+ 
     return con_img
     
     
@@ -176,13 +148,12 @@ def find_char(dst):
                                     'w': max_x-min_x,
                                     'h': max_y-min_y})
 
-                    # print("json list: ", json_list)
                     #im.show()
                     
                     tracing = get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y)
-                    # print("## Tracing: ",tracing)
+                    
                     tracing_list.update(**tracing)
-                    #tracing_list.append(tracing)
+                    
                     i = i + 1
                 y = 0
                 # exit()
@@ -196,10 +167,7 @@ def find_char(dst):
                 y = y + 2
         
         x = x + 2
-    #print("field coords: ", json_list)
-    #print("field tracing: ", tracing_list)
-   
-    # print("list of tracings: ", tracing_list)
+
     return json_list, tracing_list
  
 
@@ -494,10 +462,7 @@ def pixel_transition_count(thresh_img, seg_points):
 
 
 def word_segmentation(image):
-  
-    #cv2.imshow('img', image)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+
   
     h, w = image.shape[:2]
     # How many times does the height fits into the width?
@@ -511,11 +476,8 @@ def word_segmentation(image):
     # Condition to run the slicing character approach
     if ratio > ratio_constrain and w > width_constrain:
         # Performs somre preprocessing to the image
-        # gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         _, thresh_img = cv2.threshold(image, -0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
-        #cv2.imshow('thresholding', thresh_img)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
+     
         # Remove long horizontal lines
         res_op_1 = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
         thresh_img -= res_op_1
@@ -528,8 +490,7 @@ def word_segmentation(image):
             seg_points = local_search(word_v_hist_proj, seg_points, block_size // 2)
             # Pixel transition count
             seg_points = pixel_transition_count(thresh_img, seg_points)
-            # Update x coordinate in respect of original image
-            #seg_points = [int(char_x + x) for char_x in seg_points]
+  
 
             prev_seg_point = 0
             curr_seg_point = 0

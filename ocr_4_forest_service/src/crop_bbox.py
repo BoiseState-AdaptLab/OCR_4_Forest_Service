@@ -4,9 +4,7 @@
 #   the bounding boxes out of the form.
 
 import cv2
-import os
 import json
-import shutil
 from PIL import Image
 
 

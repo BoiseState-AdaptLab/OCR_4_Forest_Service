@@ -1,11 +1,10 @@
 # * Author: Floriana Ciaglia
 # * Date: May 28th, 2021
 # * File: crop_fields.py
-# * Objective: First step in the base pipeline. This program takes in the input form and the 
-#              json file with the field coordinates as command line arguments, crops the fields
-#              out of the form and stores them as new images in a newly generated fields/ directory.
+# * Objective: This program takes in the input form and the json file with the
+#              field coordinates as command line arguments, crops the fields
+#              out of the form and returns them.
  
-import cv2
 import json
 
 """
@@ -17,7 +16,7 @@ def crop_fields(args, form):
     fields = read_inputs(args)
 
     # crop each field out of the 
-    # form and stores them in fields/
+    # form and return it
     return crop(form, fields)
 
 
@@ -39,7 +38,9 @@ def read_inputs(args):
  portion of the image and returns it
 """
 def crop(image, json_file):
-
+    
+    # the new cropped images are stored 
+    # into a new list 
     field_imgs = []
 
     for field in json_file['fields']:

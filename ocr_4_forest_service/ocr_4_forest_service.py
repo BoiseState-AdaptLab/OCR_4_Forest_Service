@@ -11,7 +11,6 @@ from src.img_preprocessing import img_test_preprocessing
 from src.create_csv import create_csv
 from src.create_csv import create_test_csv
 import argparse
-import cv2
 
 
 def main():
@@ -38,14 +37,12 @@ def main():
         aligned = form_alignment(args)
 
         # 2) Once we have an aligned form, we crop each field
-        # box out of the image and generate the new images in
-        # a new directory 
+        # box out of the image and pass it to character detection
         field_imgs = crop_fields(args, aligned)
 
         # 3) Now that we have field images, we  
         # detect single characters in the fields 
-        # and generate a JSON file with the coordinates
-        # of the detected characters
+        # and crop single characters images out of the field
         single_chars = []
         for image in field_imgs:
             on_field_single_chars = char_detection(image)
