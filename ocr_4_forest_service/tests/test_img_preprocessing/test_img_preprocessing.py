@@ -1,6 +1,6 @@
 # this file contains functions that test the image preprocessing functionality
 
-from ..src.img_preprocessing import img_preprocessing
+from ...src.img_preprocessing import img_preprocessing
 import os
 
 def test_img_preprocessing():

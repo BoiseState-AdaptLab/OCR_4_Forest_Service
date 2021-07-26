@@ -1,6 +1,6 @@
 # this file contains the functions that test the create_csv functionality
 
-from ..src.create_csv import create_csv
+from ...src.create_csv import create_csv
 import os
 import csv
 

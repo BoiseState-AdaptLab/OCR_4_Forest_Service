@@ -15,9 +15,10 @@ def test_find_char():
 
    list_images = single_chars(bbox_list, traces_list)
 
-   for img in list_images:
-       cv2.imshow('bbox_img', img)
-       cv2.waitKey(0)
-       cv2.destroyAllWindows()
+   for idx, img in enumerate(list_images):
+        cv2.imshow(f'img_{idx}', img)
+
+   cv2.waitKey(0)
+   cv2.destroyAllWindows()
 
    assert len(list_images) == 7

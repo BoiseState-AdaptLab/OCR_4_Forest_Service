@@ -14,11 +14,12 @@ def test_tracing():
     dst = img_preprocess(img)
 
     img_list = trace(dst) 
+    
+    for idx, img in enumerate(img_list):
+        cv2.imshow(f'img_{idx}', img)
 
-    i = 0
-    for img in img_list:
-        cv2.imwrite('box_{num}.jpg'.format(num = i), img)
-        i += 1
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     assert len(img_list) == 7
 
