@@ -1,6 +1,6 @@
 # Author: Floriana Ciaglia
 # Date: July 12, 2020
-# This file will run the production pipeline
+# This file will execute the code base pipeline
 
 from src.crop_fields import crop_fields
 from src.form_alignment import form_alignment
