@@ -8,8 +8,6 @@
 import cv2
 import json
 
-
-
 """
  Performs command line parsing and function calls
 """
