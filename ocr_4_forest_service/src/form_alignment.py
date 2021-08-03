@@ -9,7 +9,7 @@ import imutils
 
 def form_alignment(temp, form):
     
-    max_features = 1000
+    max_features = 2000
     keep_percent = 0.2
 
     # align image and save it to file
