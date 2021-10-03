@@ -25,7 +25,7 @@ Once cloned, navigate to the `ocr_4_forest_service` directory:
 ```
 $ cd OCR_4_Forest_Service/ocr_4_forest_service/
 ```
-The pipeline can be run in **production** mode or **testing* mode** (`-t`).
+The pipeline can be run in **production** mode or **testing** mode (`-t`).
 - The production mode will perfom character detection on the provided pdf form. Therefore, the OCR will not be provided with labels for classification. The label for each image is set to a fictitious value.
 - The testing model will not perform character detection. The labels are set to true values we manually generated for testing purposes. By running this version of the pipeline, we are able to evaluate the accuracy of the entire pipeline. 
 
