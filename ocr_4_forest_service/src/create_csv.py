@@ -21,7 +21,7 @@ def create_csv(preprocessed_imgs):
         # we need to save the image using 
         # the pillow library to iterate through
         # its pixels
-        im = Image.fromarray(image)
+        im = Image.fromarray(image[0])
 
         #At this point, the image is ready
         #list of RGB values for each pixel in the image
@@ -36,6 +36,8 @@ def create_csv(preprocessed_imgs):
             for y in range(28):
                 rbg_val = im.getpixel((x,y))
                 pix.append(rbg_val[0])
+        
+        pix.append(image[1])
     
         with open('test_data.csv', 'a', newline='') as file:
             writer = csv.writer(file)

@@ -42,9 +42,10 @@ def crop(image, json_file):
     # the new cropped images are stored 
     # into a new list 
     field_imgs = []
-
+    i = 0
     for field in json_file['fields']:
        
+        name = str(field['field'])
         x = (field['coord_pixel'][0])
         y = (field['coord_pixel'][1])
         w = field['width']
@@ -56,7 +57,7 @@ def crop(image, json_file):
         # display the image to user
         if cropped_img is not None:
             
-            field_imgs.append(cropped_img)
+            field_imgs.append((cropped_img, name))
     
         else:
             print("Error: no image found [inside crop_fields/crop()].")

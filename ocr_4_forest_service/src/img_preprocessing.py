@@ -8,9 +8,13 @@ import cv2
 
 def img_preprocessing(list_single_chars):
     preprocessed = []
+
     for image in list_single_chars:
 
-        ret, thresh = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        ret, thresh = cv2.threshold(image[0], 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        if thresh is None:
+            continue
+
         blurred = cv2.GaussianBlur(thresh, (3,3), cv2.BORDER_DEFAULT)
     
         con_img = cv2.cvtColor(blurred, cv2.COLOR_GRAY2BGR)
@@ -19,7 +23,7 @@ def img_preprocessing(list_single_chars):
         padded = add_padding(dst)
        
         resized = cv2.resize(padded, (28,28))
-        preprocessed.append(resized)
+        preprocessed.append((resized, image[1]))
   
     return preprocessed
 

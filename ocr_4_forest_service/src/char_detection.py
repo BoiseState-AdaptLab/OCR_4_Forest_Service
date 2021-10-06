@@ -11,22 +11,60 @@ from os import path
 from PIL import Image
 from queue import LifoQueue
 import numpy as np
+import math
 
 """
 Definition of the main fuction
 """
-def char_detection(field_img): # char_detection takes in a list of field images 
-
+def char_detection(field_img, field_name): # char_detection takes in a list of field images 
+    # cv2.imshow('field', field_img)
+    # # cv2.imwrite("field_img.jpg", field_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
     con_img = img_preprocess(field_img)
+    # cv2.imshow('b&w', con_img)
+    # # cv2.imwrite("field_img.jpg", field_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
+    con_img = line_deletion(con_img)
+
+    # cv2.imshow('fixed', con_img)
+    # # cv2.imwrite("field_img.jpg", field_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    # exit()
     single_char_list = trace(con_img)
 
     word_segmentation_list = []
+    word_seg_list = []
     for image in single_char_list:
+        
+        sliced_images = word_segmentation(image, field_name)
 
-        sliced_images = word_segmentation(image)
-        word_segmentation_list.extend(sliced_images)
+        if sliced_images is None:
+          break
+        else:
 
+          for img in sliced_images:
+            # cv2.imshow('Word segmentation 1', img[0])
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            segmented_imgs = word_seg_2(img[0])
+          
+ 
+            word_seg_list.extend(segmented_imgs)
+        # for img in word_seg_list:
+        #   print(type(img))
+        #   # cv2.imshow('returned', img)
+        #   # cv2.waitKey(0)
+        #   # cv2.destroyAllWindows()
+        # print("chars list: ", len(word_seg_list))
+        word_segmentation_list = [(x,field_name) for x in word_seg_list]
+        # print("segmented images",  word_segmentation_list)
+        # word_segmentation_list.extend(sliced_images)
+  
     return word_segmentation_list
 
    
@@ -48,28 +86,56 @@ def trace(image):
     return list_images
 
 
-def single_chars(bbox_list, traces_dict):
+def line_deletion(con_img):
+
+    white = 5
+  
+    # from numpy array to PIL
+    img = Image.fromarray(con_img)
+    pixels = img.load() # create the pixel map
+          
+    y_coord = int(img.size[1])
+    for x in range(img.size[0]):
+        for y in range(y_coord - 2, y_coord):
+            if pixels[x,y] == (255, 255, 255):
+                white += 1
+                if white > 5:
+                    #img.putpixel((x,y),(255, 0, 0))
+                    img.putpixel((x,y), (0, 0, 0))
+            else:
+                white == 0
+
+
+
+    # from PIL to numpy array
+    img = np.array(img)
+    return img
+
+# @param: dictionary with bounding box coordinates and 
+# the dictionary with the tracing data 
+# @return: a list of image objects for each bbox in the field 
+# This function creates a brand new image and pastes the 
+# tracing of the characters on it in order to remove noise. 
+def single_chars(dict_bbox_coord, tracing_data):
 
     # this is the data structure that holds
     # all the single char image objects to return
     single_chars_list = []
 
- 
-    for box in bbox_list:
+    for box in dict_bbox_coord:
         box_name = box['box']
-        traces = traces_dict[box_name]
+        traces = tracing_data[box_name]
         
         blank_image = np.zeros((box['h'],box['w']), np.uint8)
         blank_image[:] = 255
     
-
         for x, y in traces:
-      
+            # we need to subtract the original field x coordinate
+            # from the bbox to align the coordinates of the bbox
             tuple = (x-box['x'], y-box['y'])
         
             blank_image[tuple[1]][tuple[0]] = 0
 
-        
         single_chars_list.append(blank_image)
 
     return single_chars_list
@@ -81,7 +147,7 @@ before bounding boxes identification
 """
 def img_preprocess(img):
 
-     #perform the image preprocessing stepss
+    # perform the image preprocessing stepss
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
@@ -95,18 +161,19 @@ Iterates through the image until it finds a character.
 It explores the character to find its max_x, min_x, max_y, min_y
 @return dictionary of data to populate the json file
 """
-def find_char(dst):
+def find_char(preprocessed_field_img):
 
     json_list = []
     tracing_list = {}
     tracing = []
 
-    max_x, min_x, max_y, min_y = 0, 1000, 0, 1000
+    max_x, min_x  = 0, 1000, 
+    max_y, min_y = 0, 1000
     
     x = 0
 
     # Open the image using the PIL library
-    im = Image.fromarray(dst)
+    im = Image.fromarray(preprocessed_field_img)
     pixels = im.load()
 
     # clean the dictionary out 
@@ -122,16 +189,18 @@ def find_char(dst):
             #if the pixel is white
             if pixels[x,y] != (0, 0, 0):
                 
-                max_x, min_x, max_y,  min_y = explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y)
-                
+                max_x, min_x, max_y,  min_y, traces = explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y)
+                # print("##traces: ", trace)
                 # if the area is big enough we identify it as a character
                 if valid_area(max_x, max_y, min_x, min_y):
-                    pixels[min_x, min_y] = (255, 0 , 0)
-                    pixels[max_x, min_y] = (255, 0 , 0)
-                    pixels[min_x, max_y] = (255, 0 , 0)
-                    pixels[max_x, max_y] = (255, 0 , 0)
+                    pixels[min_x, min_y] = (255, 0, 0)
+                    pixels[max_x, min_y] = (255, 0, 0)
+                    pixels[min_x, max_y] = (255, 0, 0)
+                    pixels[max_x, max_y] = (255, 0, 0)
 
+                    # show the image get colored at every bbox found
                     # im.show()
+
                     box_num = 'box_{num}'.format(num = i)
                     # 
                     json_list.append({'box': box_num,
@@ -142,8 +211,8 @@ def find_char(dst):
 
                     #im.show()
                     
-                    tracing = get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y)
-                    
+                    tracing = get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y, traces)
+       
                     tracing_list.update(**tracing)
                     
                     i = i + 1
@@ -163,6 +232,165 @@ def find_char(dst):
     return json_list, tracing_list
  
 
+
+def word_seg_2(sliced_img): # single segmented image coming from the first word segmentation technique
+ 
+    new_char_list = []
+
+    # 1) turn image to binary threshold
+    _, thresh = cv2.threshold(sliced_img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    # cv2.imshow('Original', sliced_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+    height, width = sliced_img.shape
+    # print("height, width:", height, width)
+
+    if height == 0 or width == 0 :
+      return new_char_list
+
+    # 2) create vertical histogram projection
+    vertical_hist = np.sum(thresh, axis=0, keepdims=True)/255
+
+    # creare a blank image for vertical histogram
+    blank_img = np.zeros([height,width,3],dtype=np.uint8)
+    blank_img[:] = 255
+
+    total = 0
+    # visual representation of vertical histogram
+    for i, num in enumerate(vertical_hist[0]):
+        total += num
+        cv2.line(blank_img, pt1=(i,height), pt2=(i,height-int(num)), color=(0,0,0), thickness=1)
+
+    # cv2.imshow('Vertical Histogram', blank_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+    # implement the word-segmentation lining on the image
+    seg_points = []
+    copy_lines = sliced_img.copy()
+    for i, num in enumerate(vertical_hist[0]):
+        if num < (total*.01):
+            cv2.line(copy_lines, pt1=(i,height), pt2=(i,0), color=(0,0,0), thickness=1)
+            seg_points.append((i, height))
+    # print(seg_points)
+
+    # cv2.imshow('image with seg lines', copy_lines)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+   
+    if len(seg_points) < 1:
+        # print("We DON'T have lines")
+        # print("adding to list")
+        new_char_list.append(sliced_img)
+        # cv2.imshow('returned', sliced_img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        # return sliced_img
+    # we found segmentation lines in the image. So, we have some logic in here:
+    #    1) The lines are either at the very front or very back of the image --> disregard them
+    #    2) The lines divide two letters --> create the two distinct images 
+
+    else:
+        # print("We DO have lines")
+        # print("seg points:", seg_points)
+        # start_x = 0
+        start_y = 0
+        end_x = 0
+
+        copy = sliced_img.copy()
+        
+        for seg_point in seg_points:
+            # curr_seg_point = seg_point
+            # create a copy of the original image
+            start_x = end_x
+            end_x = seg_point[0]
+            end_y = seg_point[1]
+            # print("- left threshold:", width*.1)
+
+            # if the segment is in bound
+            if end_x > 3 and end_x < width-2:
+          
+                # if the segment is wider than 3 pixels
+                if (end_x - start_x) > 3:
+                    # print("start_x", start_x)
+                    # print("start_y", start_y)
+                    # print("end_x", end_x)
+                    # print("end_y", end_y)
+                    
+                    #image[start_x:end_x, start_y:end_y]
+                    # cropped = copy.crop((start_x, 0, end_x, height))
+                    # images.append(cropped)
+                    # print("adding to list")
+                    new_char_list.append(copy[start_y:end_y, start_x:end_x])
+                    # print("It's happening here...")
+                    # cv2.imshow('# segmenting 2', copy[start_y:end_y, start_x:end_x])
+                    # # cv2.imshow('## segmenting', image[start_x:end_x,start_y:end_y])
+                    # cv2.waitKey(0)
+                    # cv2.destroyAllWindows()
+
+                    
+              # start_y = end_y
+            # prev_seg_point = curr_seg_point
+        
+        # print("width", width)
+        # print("height", height)
+        # print("#######################")
+        # print("start_x", start_x)
+        # print("start_y", start_y)
+        # print("end_x", end_x)
+        # print("end_y", end_y)
+
+        # This covers the case where the segmentation lines are at the 
+        # beginnig of the image before the character
+        if end_x < 3:
+          # print("Do we ever get in here? ")
+          # print("Weird case")
+          # print("adding to list")
+          new_char_list.append(sliced_img)
+          # cv2.imshow('# segmenting 2', sliced_img)
+          # # cv2.imshow('## segmenting', image[start_x:end_x,start_y:end_y])
+          # cv2.waitKey(0)
+          # cv2.destroyAllWindows()
+
+        elif (width - end_x) > 5 :
+          # print("adding to list in the forth place")
+          new_char_list.append(copy[start_y:end_y, end_x:width-1])
+          # print("height of segment:", end_y-start_y)
+          # cv2.imshow('## segmenting 2', copy[start_y:end_y, end_x:width-1])
+          # cv2.waitKey(0)
+          # cv2.destroyAllWindows()
+
+        elif (end_x > 1 and end_x < width) and ((end_x - start_x) > 3):
+          # print("adding to list in the third place")
+          new_char_list.append(copy[start_y:end_y, start_x:end_x])
+          # # print("height of segment:", end_y-start_y)
+          # cv2.imshow('## segmenting 2', copy[start_y:end_y, start_x:end_x])
+          # cv2.waitKey(0)
+          # cv2.destroyAllWindows()
+          # cv2.imwrite('segment.jpg', copy[start_y:end_y, start_x:end_x])
+          # segment = cv2.imread('segment.jpg')
+          # print(segment.shape)
+          # print("len images", len(images))
+
+        
+
+
+    # new_char_list.append(images)
+    # print("len list", len(new_char_list))
+
+    # for image in new_char_list:
+      # print("Ricapitolando...")
+      # # print(image[0].shape)
+      # img = Image.fromarray(image)
+      # # print(img.shape())
+      # # img.save('test.png')
+      # img.show()
+
+    return new_char_list
+
+
 """
 Accepts only the areas that are bigger than 100
 @return boolean
@@ -177,6 +405,7 @@ def valid_area(max_x, max_y, min_x, min_y):
     if area > 100:
         return True
     else:
+        # print("## Error: The area was ", area)
         return False
 
 
@@ -213,6 +442,7 @@ def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
     stack = []
     jump_size = 1
     stack.append((x,y))
+    trace = []
     
     # while the stack holds tuples
     while len(stack) != 0:
@@ -244,21 +474,22 @@ def explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y):
             
             #turn the pixel green to sign it as visited
             pixels[pair[0], pair[1]] = (0, 255, 0)
+            trace.append((pair[0], pair[1]))
 
     # 
     # im.show()
     
-    return max_x, min_x, max_y,  min_y
+    return max_x, min_x, max_y,  min_y, trace
 
 
-def get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y):
+def get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y, traces):
     tracing_dict = {}
     tracing = []
   
     for x in range(min_x, max_x):
         for y in range(min_y, max_y):
             
-            if pixels[x, y] == (0,  255, 0):
+            if pixels[x, y] == (0,  255, 0) and (x, y) in set(traces):
                 tracing.append((x,y))
     tracing_dict[box_num] = tracing
     
@@ -301,6 +532,7 @@ def check_coord(x, y, max_x, min_x, max_y, min_y):
 
 
 def create_h_v_image_proj(thresh_img):
+
     """Create vertical and horizontal histogram projections and their 
     respective images.
 
@@ -325,11 +557,17 @@ def create_h_v_image_proj(thresh_img):
     # Normalizes the image and counts pixels through rows and columns
     word_v_hist_proj = np.sum(thresh_img / 255, axis=0)
     word_h_hist_proj = np.sum(thresh_img / 255, axis=1) 
+    # print("word hist:", word_h_hist_proj )
     # Calcualtes the value of max pixel frequency in horizontal hist projection 
     m = np.max(word_h_hist_proj)
+    # print("max:", m)
+    if m == 0:
+      return -1
+    
     for row in range(thresh_img.shape[0]):
         # Creates a horizontal white line proportional size to the white pixel 
         # frequency of that row
+        # print("m: ", m, "w:", w, "longer thing:", word_h_hist_proj[row])
         h_hist_img = cv2.line(
             h_hist_img, 
             (0,row), 
@@ -348,7 +586,7 @@ def create_h_v_image_proj(thresh_img):
         (255,255,255),
         1)
     
-    return word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img
+    return word_v_hist_proj
 
 
 def segmentation_points(v_projection, block_size, step_size, thresh):
@@ -453,7 +691,7 @@ def pixel_transition_count(thresh_img, seg_points):
 
 
 
-def word_segmentation(image):
+def word_segmentation(image, field_name):
 
     h, w = image.shape[:2]
     # How many times does the height fits into the width?
@@ -472,8 +710,13 @@ def word_segmentation(image):
         # Remove long horizontal lines
         res_op_1 = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
         thresh_img -= res_op_1
+
         # Calculate the image vertical projection histogram
-        word_v_hist_proj, word_h_hist_proj, v_hist_img, h_hist_img = create_h_v_image_proj(thresh_img)
+        word_v_hist_proj = create_h_v_image_proj(thresh_img)
+        # print(word_v_hist_proj)
+        if type(word_v_hist_proj) == int:
+            return
+
         # Get characters
         if len(word_v_hist_proj) > block_size:
             seg_points = segmentation_points(word_v_hist_proj, block_size, step_size, thresh)
@@ -481,18 +724,19 @@ def word_segmentation(image):
             seg_points = local_search(word_v_hist_proj, seg_points, block_size // 2)
             # Pixel transition count
             seg_points = pixel_transition_count(thresh_img, seg_points)
-  
-
+            # print("type of seg points: ", type(seg_points))
+            # print(seg_points)
             prev_seg_point = 0
             curr_seg_point = 0
             images = []
             for seg_point in seg_points:
                 curr_seg_point = seg_point
-                images.append(image[:,prev_seg_point:curr_seg_point])
+                images.append((image[:,prev_seg_point:curr_seg_point], field_name))
                 prev_seg_point = curr_seg_point
-            images.append(image[:,curr_seg_point:image.shape[1] - 1])
-
+            images.append((image[:,curr_seg_point:image.shape[1] - 1], field_name))
+  
             return images
             
     else:
-        return [image]
+
+        return [(image, field_name)]

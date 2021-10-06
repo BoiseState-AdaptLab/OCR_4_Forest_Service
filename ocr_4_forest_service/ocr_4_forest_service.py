@@ -53,8 +53,8 @@ def main():
         # detect single characters in the fields 
         # and crop single characters images out of the field
         single_chars = []
-        for image in field_imgs:
-            on_field_single_chars = char_detection(image)
+        for image, field_name in field_imgs:
+            on_field_single_chars = char_detection(image, field_name)
             single_chars.extend(on_field_single_chars)
 
         # 4) Finally, we pre process each single character
