@@ -7,11 +7,11 @@
  
 import json
 
-"""
- Performs command line parsing and function calls
-"""
-def crop_fields(args, form):
 
+def crop_fields(args, form):
+    """
+    Performs command line parsing and function calls
+    """
     # read the input image in
     fields = read_inputs(args)
 
@@ -20,11 +20,12 @@ def crop_fields(args, form):
     return crop(form, fields)
 
 
-"""
- Reads the input image in and loads the 
- json file 
-"""
+
 def read_inputs(args):
+    """
+    Reads the input image in and loads the 
+    json file 
+    """
     
     # load the json file
     json_file = open(args["coord"])
@@ -33,16 +34,16 @@ def read_inputs(args):
     return fields
 
 
-"""
- Goes trough the coordinates, crops out the 
- portion of the image and returns it
-"""
+
 def crop(image, json_file):
-    
+    """
+    Goes trough the coordinates, crops out the 
+    portion of the image and returns it
+    """
     # the new cropped images are stored 
     # into a new list 
     field_imgs = []
-    i = 0
+    
     for field in json_file['fields']:
        
         name = str(field['field'])
@@ -56,7 +57,6 @@ def crop(image, json_file):
 
         # display the image to user
         if cropped_img is not None:
-            
             field_imgs.append((cropped_img, name))
     
         else:

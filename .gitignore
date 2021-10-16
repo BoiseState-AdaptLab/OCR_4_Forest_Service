@@ -10,6 +10,7 @@ ocr_4_forest_service/test_data.csv
 ocr_4_forest_service/src/single_chars/
 ocr_4_forest_service/src/fields/
 ocr_4_forest_service/src/__pycache__/
+ocr_4_forest_service/model/field_preds.json
 ocr_4_forest_service/tests/fields/
 ocr_4_forest_service/tests/__pycache__/
 ocr_4_forest_service/tests/preprocessed/

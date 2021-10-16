@@ -17,25 +17,31 @@ import math
 Definition of the main fuction
 """
 def char_detection(field_img, field_name): # char_detection takes in a list of field images 
-    # cv2.imshow('field', field_img)
+
+    # cv2.imshow('examiner', field_img)
     # # cv2.imwrite("field_img.jpg", field_img)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
-    
+
     con_img = img_preprocess(field_img)
-    # cv2.imshow('b&w', con_img)
+
+    # cv2.imshow('preprocessed', con_img)
     # # cv2.imwrite("field_img.jpg", field_img)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
     con_img = line_deletion(con_img)
+   
 
-    # cv2.imshow('fixed', con_img)
+    # lines 48-54 need commenting out
+    # cv2.imshow('line detection', con_img)
     # # cv2.imwrite("field_img.jpg", field_img)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
     # exit()
     single_char_list = trace(con_img)
+
+    # print("single char list for examiner:", single_char_list)
 
     word_segmentation_list = []
     word_seg_list = []
@@ -44,6 +50,7 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
         sliced_images = word_segmentation(image, field_name)
 
         if sliced_images is None:
+          
           break
         else:
 
@@ -53,7 +60,7 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
             # cv2.destroyAllWindows()
             segmented_imgs = word_seg_2(img[0])
           
- 
+
             word_seg_list.extend(segmented_imgs)
         # for img in word_seg_list:
         #   print(type(img))
@@ -64,6 +71,8 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
         word_segmentation_list = [(x,field_name) for x in word_seg_list]
         # print("segmented images",  word_segmentation_list)
         # word_segmentation_list.extend(sliced_images)
+  
+     
   
     return word_segmentation_list
 
@@ -87,7 +96,11 @@ def trace(image):
 
 
 def line_deletion(con_img):
-
+    """
+     This function removes the bottom line 
+     in each field-it removes noise factors.
+    """
+   
     white = 5
   
     # from numpy array to PIL
