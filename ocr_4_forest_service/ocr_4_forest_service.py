@@ -23,20 +23,31 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("-i", "--input", required=True,
         help="path to Forest Service form")
+
     ap.add_argument("-json", "--coord", type=str, required=True,
         help="path to JSON file with fields coordinates")
+
     ap.add_argument("-temp", "--template", type=str, required=True,
         help="path to template form for form alignment")
+
     ap.add_argument("-t",  action='store_true',
         help="Testing pipeline execution flag. If not specified, the program executes in production mode")
+
     ap.add_argument("-align",  action='store_true',
-        help="Stops the execution after form alignment and saves the aligned form to a new file.\n If not specified, the program executes until completion")
+        help="Stops the execution after form alignment and saves the aligned form to a new file.\n" + 
+        "If not specified, the program executes until completion")
+
     ap.add_argument("-crop",  action='store_true',
-        help="Stops the execution after crop field step and saves the cropped fields inside a new directory.\n If not specified, the program executes until completion")
+        help="Stops the execution after crop field step and saves the cropped fields inside a new" +
+        "directory.\n If not specified, the program executes until completion")
+
     ap.add_argument("-char",  action='store_true',
-        help="Stops the execution after character detection and saves the single characters inside a new directory.\n If not specified, the program executes until completion")
+        help="Stops the execution after character detection and saves the single characters inside a " +
+        "new directory.\n If not specified, the program executes until completion")
+
     ap.add_argument("-preprocess",  action='store_true',
-        help="Stops the execution after image preprocessing and saves the proprocessed images inside a new directory.\n If not specified, the program executes until completion")
+        help="Stops the execution after image preprocessing and saves the proprocessed images inside a " +
+        "new directory.\n If not specified, the program executes until completion")
     
     args = vars(ap.parse_args())
 
@@ -49,7 +60,6 @@ def main():
 
     # the main functions are called in order of execution
     # determined by the pipeline
-
     if args['t'] is False:
 
         # 1) the first step consists in aligning the form
@@ -74,7 +84,7 @@ def main():
         # and crop single characters images out of the field
         single_chars = []
         for image, field_name in field_imgs:
-          
+            # print(field_name)
             on_field_single_chars = char_detection(image, field_name)
             single_chars.extend(on_field_single_chars)
         
@@ -121,7 +131,8 @@ def main():
 
 def align_exit(aligned_form):
     cv2.imwrite('aligned-form.jpg', aligned_form)
-    print("Pipeline executed until after form alignment step. \n\t-The aligned form has been saved to this directory.")
+    print("Pipeline executed until after form alignment step."+ 
+            "\n\t-The aligned form has been saved to this directory.")
 
 
 def crop_exit(field_imgs):
@@ -140,7 +151,8 @@ def crop_exit(field_imgs):
     for image in field_imgs:
         img_name = image[1] + '.jpg'
         cv2.imwrite(os.path.join(path , img_name), image[0])
-    print("Pipeline executed until after crop fields step. \n\t-The cropped images have been saved inside the /cropped_fields directory.")
+    print("Pipeline executed until after crop fields step." +
+            "\n\t-The cropped images have been saved inside the /cropped_fields directory.")
 
 
 def char_exit(single_chars):
@@ -164,7 +176,8 @@ def char_exit(single_chars):
         counter = counter + 1
 
 
-    print("Pipeline executed until after character detection step. \n\t-The cropped images have been saved inside the /char_detection directory.")
+    print("Pipeline executed until after character detection step." +
+            "\n\t-The cropped images have been saved inside the /char_detection directory.")
 
 
 
@@ -185,7 +198,6 @@ def preprocess_exit(preprocessed_imgs):
     
     for pair in preprocessed_imgs:
         img_name = pair[1] + '-' + str(counter) + '.jpg'
-        # print(pair[1])
 
         cv2.imwrite(os.path.join(path , img_name), pair[0])
         counter = counter + 1
