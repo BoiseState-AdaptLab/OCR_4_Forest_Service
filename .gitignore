@@ -1,9 +1,6 @@
 .DS_Store
-archived/high_res/.DS_Store
-archived/char_detection/.DS_Store
-archived/char_detection/output/
-archived/char_detection/single_chars/
-archived/char_detection/preprocessed/
+ocr_4_forest_service/char_detection/
+ocr_4_forest_service/cropped_fields/
 ocr_4_forest_service/output/
 ocr_4_forest_service/__pycache__/
 ocr_4_forest_service/test_data.csv
