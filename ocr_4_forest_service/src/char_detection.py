@@ -16,13 +16,15 @@ import math
 """
 Definition of the main fuction
 """
-def char_detection(field_img, field_name): # char_detection takes in a list of field images 
-
-    # cv2.imshow('examiner', field_img)
+def char_detection(field_img, field_name): # char_detection takes in a list of field images
+  
+      
+    # cv2.imshow('livestock', field_img)
     # # cv2.imwrite("field_img.jpg", field_img)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
-
+    # word_segmentation_list = []
+    # if field_name == "WRITEUP NO.":
     con_img = img_preprocess(field_img)
 
     # cv2.imshow('preprocessed', con_img)
@@ -31,7 +33,7 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     # cv2.destroyAllWindows()
 
     con_img = line_deletion(con_img)
-   
+  
 
     # lines 48-54 need commenting out
     # cv2.imshow('line detection', con_img)
@@ -41,24 +43,34 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     # exit()
     single_char_list = trace(con_img)
 
-    # print("single char list for examiner:", single_char_list)
+    # print("single char list for writeup no:", len(single_char_list))
 
     word_segmentation_list = []
     word_seg_list = []
+
     for image in single_char_list:
         
         sliced_images = word_segmentation(image, field_name)
+        # print("sliced images:", type(sliced_images[0][0]))
+
+        # cv2.imshow('img', sliced_images[0][0])
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
         if sliced_images is None:
-          
+          # print("for one of them we get in here")
           break
         else:
 
           for img in sliced_images:
+            # cv2.imshow('img', img[0])
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
             # cv2.imshow('Word segmentation 1', img[0])
             # cv2.waitKey(0)
             # cv2.destroyAllWindows()
             segmented_imgs = word_seg_2(img[0])
+            # print("segmented images", len(segmented_imgs))
           
 
             word_seg_list.extend(segmented_imgs)
@@ -69,8 +81,9 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
         #   # cv2.destroyAllWindows()
         # print("chars list: ", len(word_seg_list))
         word_segmentation_list = [(x,field_name) for x in word_seg_list]
-        # print("segmented images",  word_segmentation_list)
-        # word_segmentation_list.extend(sliced_images)
+      # print("segmented images",  type(word_segmentation_list[0][0]))
+     
+      # word_segmentation_list.extend(sliced_images)
   
      
   
@@ -86,7 +99,7 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
 # trace of the letter.  
 def trace(image):
     """
-    Get all traces beloging to the character of the image.
+    Get all traces beloging to the characters of the image.
     """
     dict_bbox_coord, tracing_data = find_char(image)
     
@@ -169,12 +182,13 @@ def img_preprocess(img):
     
     
 
-"""
-Iterates through the image until it finds a character. 
-It explores the character to find its max_x, min_x, max_y, min_y
-@return dictionary of data to populate the json file
-"""
+
 def find_char(preprocessed_field_img):
+    """
+    Iterates through the image until it finds a character. 
+    It explores the character to find its max_x, min_x, max_y, min_y
+    @return dictionary of data to populate the json file
+    """
 
     json_list = []
     tracing_list = {}
@@ -222,7 +236,7 @@ def find_char(preprocessed_field_img):
                                     'w': max_x-min_x,
                                     'h': max_y-min_y})
 
-                    #im.show()
+                    # im.show()
                     
                     tracing = get_tracing(pixels, box_num, tracing, max_x, min_x, max_y, min_y, traces)
        
@@ -324,7 +338,7 @@ def word_seg_2(sliced_img): # single segmented image coming from the first word 
 
             # if the segment is in bound
             if end_x > 3 and end_x < width-2:
-          
+                # print("we don't get in here for 2")
                 # if the segment is wider than 3 pixels
                 if (end_x - start_x) > 3:
                     # print("start_x", start_x)
@@ -374,6 +388,9 @@ def word_seg_2(sliced_img): # single segmented image coming from the first word 
           # cv2.imshow('## segmenting 2', copy[start_y:end_y, end_x:width-1])
           # cv2.waitKey(0)
           # cv2.destroyAllWindows()
+        elif ((end_x - start_x) < 3) and width - end_x < 3:
+          # print("2 should be added heree")
+          new_char_list.append(copy[start_y:end_y, 0:start_x])
 
         elif (end_x > 1 and end_x < width) and ((end_x - start_x) > 3):
           # print("adding to list in the third place")
