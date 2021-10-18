@@ -43,6 +43,12 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     # exit()
     single_char_list = trace(con_img)
 
+    if len(single_char_list) < 1: # the list is empty
+        # try with a different image preprocessing technique 
+        con_img = img_enhancement(field_img)
+        con_img = line_deletion(con_img)
+        single_char_list = trace(con_img)
+
     # print("single char list for writeup no:", len(single_char_list))
 
     word_segmentation_list = []
@@ -88,6 +94,22 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
      
   
     return word_segmentation_list
+
+
+def img_enhancement(img):
+  
+    # perform the image preprocessing steps
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    global_thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                          cv2.THRESH_BINARY_INV, 111, 0)
+    # cv2.imshow(f'threshold', global_thresh)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+   
+    con_img = cv2.cvtColor(global_thresh, cv2.COLOR_GRAY2BGR)
+ 
+    return con_img
 
    
 # @param: image object
