@@ -227,7 +227,7 @@ def find_char(preprocessed_field_img):
 
     # clean the dictionary out 
     # before adding a new image
-
+  
     i = 0
     #iterate through the pixels in dst
     while (x < im.size[0]): # for every pixel:
@@ -237,16 +237,16 @@ def find_char(preprocessed_field_img):
             
             #if the pixel is white
             if pixels[x,y] != (0, 0, 0):
-                
+              
                 max_x, min_x, max_y,  min_y, traces = explore_active(x, y, im, pixels,  max_x, min_x, max_y, min_y)
-                # print("##traces: ", trace)
+                # print("##coord: ", max_x, min_x, max_y,  min_y)
                 # if the area is big enough we identify it as a character
                 if valid_area(max_x, max_y, min_x, min_y):
                     pixels[min_x, min_y] = (255, 0, 0)
                     pixels[max_x, min_y] = (255, 0, 0)
                     pixels[min_x, max_y] = (255, 0, 0)
                     pixels[max_x, max_y] = (255, 0, 0)
-
+                    
                     # show the image get colored at every bbox found
                     # im.show()
 
@@ -454,7 +454,7 @@ def valid_area(max_x, max_y, min_x, min_y):
     height = max_y - min_y
     area = width * height
 
-    if area > 100:
+    if area > 60:
         return True
     else:
         # print("## Error: The area was ", area)
