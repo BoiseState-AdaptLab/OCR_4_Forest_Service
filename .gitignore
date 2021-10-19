@@ -1,15 +1,28 @@
 .DS_Store
+
+# directories that get generated from pipeline
 ocr_4_forest_service/char_detection/
 ocr_4_forest_service/cropped_fields/
-ocr_4_forest_service/output/
+ocr_4_forest_service/aligned-form.jpg
+ocr_4_forest_service/img_preprocessing/
+
+# pipeline output file
+# ocr_4_forest_service/test_data.csv
+ocr_4_forest_service/src/test_data.csv
+
+# __pycache__ directories
 ocr_4_forest_service/__pycache__/
-ocr_4_forest_service/test_data.csv
-ocr_4_forest_service/src/single_chars/
-ocr_4_forest_service/src/fields/
 ocr_4_forest_service/src/__pycache__/
-ocr_4_forest_service/model/field_preds.json
-ocr_4_forest_service/tests/fields/
 ocr_4_forest_service/tests/__pycache__/
+
+# jupyter notebook checkpoints
+ocr_4_forest_service/src/.ipynb_checkpoints/
+
+# model output json file with preds
+ocr_4_forest_service/model/field_preds.json
+
+# directories that get generated for testing
+ocr_4_forest_service/tests/fields/
 ocr_4_forest_service/tests/preprocessed/
 ocr_4_forest_service/tests/single_chars/
 ocr_4_forest_service/tests/test_data.csv
@@ -46,20 +59,7 @@ ocr_4_forest_service/tests/field_14_coord.json
 ocr_4_forest_service/tests/field_15/
 ocr_4_forest_service/tests/field_15_coord.json
 ocr_4_forest_service/tests/bbox_coord.json
-ocr_4_forest_service/src/alignedImage.jpg/
-ocr_4_forest_service/preprocessed/
-ocr_4_forest_service/src/bbox_coord.json
-ocr_4_forest_service/src/test_data.csv
-ocr_4_forest_service/src/.ipynb_checkpoints/
-ocr_4_forest_service/single_chars/
-ocr_4_forest_service/alignedImage.jpg
-ocr_4_forest_service/bbox_coord.json
-ocr_4_forest_service/fields/
-archived/high_res/output/
-archived/high_res/preprocessed/
-archived/high_res/.ipynb_checkpoints/
-archived/pipeline/fields/
-archived/pipeline/preprocessed/
-archived/pipeline/single_chars/
-archived/pipeline/alignedImage.jpg
-archived/pipeline/src/__pycache__/
+
+
+
+
