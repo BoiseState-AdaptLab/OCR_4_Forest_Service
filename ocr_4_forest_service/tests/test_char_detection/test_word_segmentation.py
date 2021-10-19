@@ -7,7 +7,7 @@ from ...src.char_detection import word_segmentation
 
 def test_word_segmentation():
 
-   img = cv2.imread('input_imgs/field_img.png', 1)
+   img = cv2.imread('../../cropped_fields/PLOT INTERVAL.jpg', 1)
 
    dst = img_preprocess(img)
 
@@ -33,7 +33,7 @@ def test_word_segmentation():
    cv2.waitKey(0)
    cv2.destroyAllWindows()
 
-   assert len(word_seg) == 4
+   assert len(word_seg) == 2
 
 
 

@@ -7,7 +7,7 @@ from ...src.char_detection import trace
 
 def test_preprocessing_techniques():
   
-    img = cv2.imread('../../cropped_fields/KIND OF LIVESTOCK.jpg', 1)
+    img = cv2.imread('../../cropped_fields/PLOT INTERVAL.jpg', 1)
 
     if img is None:
         print("image is None")
@@ -32,12 +32,12 @@ def test_preprocessing_techniques():
 
 
     # Phase 1 - Image Enhancement
-    local_thresh = img_enhancement(img)
+    # local_thresh = img_enhancement(img)
 
-    cv2.imshow(f'local thresh', local_thresh)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    print(global_thresh.shape)
+    # cv2.imshow(f'local thresh', local_thresh)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    # print(global_thresh.shape)
 
 
     cleaned_img = line_deletion(global_thresh)
@@ -48,7 +48,7 @@ def test_preprocessing_techniques():
 
 
     img_list = trace(cleaned_img)
-    print(img_list)
+    # print(img_list)
     
     assert img == 1
 
@@ -62,9 +62,9 @@ def img_enhancement(img):
 
     global_thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                           cv2.THRESH_BINARY_INV, 111, 0)
-    cv2.imshow(f'thresholf', global_thresh)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow(f'threshold', global_thresh)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
    
     con_img = cv2.cvtColor(global_thresh, cv2.COLOR_GRAY2BGR)
  
