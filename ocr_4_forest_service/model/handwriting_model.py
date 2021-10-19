@@ -1,11 +1,10 @@
 # This file cotains the code that executes the model
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
-import tensorflow as tf
 from tensorflow.keras import utils
 import tensorflow.keras as keras
+import argparse
 import json
 
 HEIGHT = 28
@@ -16,86 +15,82 @@ pred_data = {}
 
 def main():
 
-    # The location of the Kaggle EMNIST dataset
-    TRAIN = "archive/" 
-    train = pd.read_csv(os.path.join(TRAIN, 'emnist-balanced-train.csv'), header=None)
+    # Argument parsing 
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--input", required=True,
+        help="path to csv file")
 
-    # The location of the test dataset
-    TEST = "../" 
-    test = pd.read_csv(os.path.join(TEST, 'test_data.csv'), header=None)
+    ap.add_argument("-mapp", "--mapp", required=True,
+        help="path to mapping dataset")
+
+    ap.add_argument("-model", "--model", required=True,
+        help="path to pre-trained model")
+    args = vars(ap.parse_args())
+
+
+    # load the csv file as test data 
+    test = pd.read_csv(args['input'], header=None)
 
     # setting up the field names to match with predictions for output
     field_name = test.loc[:, 785]
     test = test.iloc[: , :-1]
 
+    # turn field names to numpy arrays
     field_name = field_name.to_numpy()
 
+    # set up the format of the output json file
     for name in field_name:
         pred_data[name] = {'guesses' : [], 'pred_list': []}
-    # print(pred_data)
-
-    # The location to my Kaggle EMNIST mapping dataset
-    mapp = pd.read_csv("archive/emnist-balanced-mapping.txt"
-                       , delimiter = ' ', header=None, usecols=[1], squeeze=True)
 
 
+    # load Kaggle EMNIST mapping dataset
+    mapp = pd.read_csv(args["mapp"], delimiter = ' ', header=None, usecols=[1], squeeze=True)
+
+    # mapps each letter to a number
     class_num = create_mapping(mapp)
    
-    train_x, test_x = build_dataset(train, test)
+    test_x = build_dataset(test)
 
     # create the "answer" key datasets
-    train_y, test_y = create_answer(train, test)
+    test_y = create_answer(test)
  
-    train_y, test_y = one_hot_encoding(train_y, test_y, class_num)
+    test_y = one_hot_encoding(test_y, class_num)
  
-    train_x, test_x = data_reshape(train_x, test_x)
+    test_x = data_reshape(test_x)
     
-    model_1, model_2, model_3, model_4, model_5 = load_models()
-    
-    prediction_1, prediction_2, prediction_3, prediction_4, prediction_5 = predict_models(model_1, 
-                                                                                            model_2, 
-                                                                                            model_3, 
-                                                                                            model_4, 
-                                                                                            model_5, 
-                                                                                            test_x)
-    
-    class_predictions_2 = predict_classes(model_1, 
-                                            model_2, 
-                                            model_3, 
-                                            model_4, 
-                                            model_5, 
-                                            test_x)
+    # load the pre-trained model_2
+    model = load_model(args)
 
-    matchings = np.c_[class_predictions_2, field_name]
+    # call predict on the classes labels
+    predictions = predict_classes(test_x, model)
+    
+    # get model predictions on each image in test
+    final_model_prediction = predict_models(model, test_x)
+
+    # matches each image to its field name 
+    matchings = np.c_[predictions, field_name]
     # print(matchings)
 
-    single_models(prediction_1, prediction_2, prediction_3, prediction_4, prediction_5, test_y, mapp, matchings) 
-    
-    # combine_models(prediction_1, prediction_2, prediction_3, prediction_4, prediction_5, 
-    #                 test_y, pred_data, field_name, mapp)
-    # print("we never return from here")
+    # runs the model classification and stores data into pred_data
+    accuracy_score = single_models(final_model_prediction, test_y, mapp, matchings) 
+
+
+    with open("field_preds.json", "w") as outfile:  
+        json.dump(pred_data, outfile)
 
     return 0
 
-def single_models(prediction_1, prediction_2, prediction_3, prediction_4, prediction_5, test_y, mapp, matchings):
-    # pos_1 = all_guesses(prediction_1, test_y)
-    # model_1_correct = correct_percentage_on_test(prediction_1, pos_1, test_y, mapp)
-    pos_2 = all_guesses(prediction_2, test_y)
-    model_2_correct = correct_percentage_on_test(prediction_2, pos_2, test_y, mapp, matchings)
-    # pos_3 = all_guesses(prediction_1, test_y)
-    # model_3_correct = correct_percentage_on_test(prediction_3, pos_3, test_y, mapp)
-    # pos_4 = all_guesses(prediction_1, test_y)
-    # model_4_correct = correct_percentage_on_test(prediction_4, pos_4, test_y, mapp)
-    # pos_5 = all_guesses(prediction_1, test_y)
-    # model_5_correct = correct_percentage_on_test(prediction_5, pos_5, test_y, mapp)
 
-    print("\n")
-    print('Accuracy of all 5 models used inside web application\n')
-    # print('Model #1: {}%'.format(model_1_correct))
-    print('Model #2: {}%'.format(model_2_correct))
-    # print('Model #3: {}%'.format(model_3_correct))
-    # print('Model #4: {}%'.format(model_4_correct))
-    # print('Model #5: {}%'.format(model_5_correct))
+def predict_classes(test_x, model):
+    return model.predict_classes(test_x) 
+
+
+def single_models(final_model_prediction, test_y,mapp, matchings):
+    
+    values, pos = top_3(final_model_prediction, test_y)
+    return correct_percentage_on_test(final_model_prediction, pos, test_y, mapp, matchings)
+    
+
 
 
 
@@ -150,18 +145,14 @@ def create_json(pred_data):
     with open("field_preds.json", "w") as outfile:
         json.dump(pred_data, outfile)
 
-def predict_classes(model_1, model_2, model_3, model_4, model_5, test_x):
-    return model_2.predict_classes(test_x)
 
 
-def predict_models(model_1, model_2, model_3, model_4, model_5, test_x):
-    prediction_1 = model_1.predict(test_x)
+
+def predict_models(model_2, test_x):
+   
     prediction_2 = model_2.predict(test_x)
-    prediction_3 = model_3.predict(test_x)
-    prediction_4 = model_4.predict(test_x)
-    prediction_5 = model_5.predict(test_x)
-
-    return prediction_1, prediction_2, prediction_3, prediction_4, prediction_5
+  
+    return prediction_2
 
 
 def top_3(predictions, test_y):
@@ -184,40 +175,34 @@ def top_3(predictions, test_y):
 
 
 
-def load_models():
-    model_1 = keras.models.load_model("models/model_1.h5") # 2-conv-128-nodes-2-dense-0.2-Dropout
-    model_2 = keras.models.load_model("models/model_2.h5") # 2-conv-128-nodes-2-dense-0.2-Dropout
-    model_3 = keras.models.load_model("models/model_3.h5") # 2-conv-64-nodes-2-dense-0.2-Dropout
-    model_4 = keras.models.load_model("models/model_4.h5") # 2-conv-64-nodes-2-dense-0.2-Dropout
-    model_5 = keras.models.load_model("models/model_5.h5")# 2-conv-64-nodes-2-dense-0.2-Dropout
-
-    return model_1, model_2, model_3, model_4, model_5
+def load_model(args):
+    
+    model_2 = keras.models.load_model(args["model"]) # 2-conv-128-nodes-2-dense-0.2-Dropout
+    
+    return model_2
 
 
 
-def data_reshape(train_x, test_x):
+def data_reshape(test_x):
     # reshape the data to have 4 dimentions
-    train_x = train_x.reshape(-1, HEIGHT, WIDTH, 1)
     test_x = test_x.reshape(-1, HEIGHT, WIDTH, 1)
 
-    return train_x, test_x
+    return test_x
 
 
 
-def create_answer(train, test):
-    train_y = train.iloc[:,0]
+def create_answer(test):
     test_y = test.iloc[:,0]
 
-    return train_y, test_y
+    return test_y
 
 
 
-def one_hot_encoding(train_y, test_y, class_num):
+def one_hot_encoding(test_y, class_num):
     # perform One Hot Encoding to get the data ready for model
-    train_y = utils.to_categorical(train_y, class_num)
     test_y = utils.to_categorical(test_y, class_num)
 
-    return train_y, test_y
+    return test_y
 
 
 
@@ -289,20 +274,11 @@ def correct_percentage_on_test(predictions, pos, test_y, mapp, matchings):
          
 
         if np.argmax(predictions[x]) == np.argmax(test_y[x]):
-            # print("\n")
-            # print(f"{x})")
-            # print("guess: ", np.argmax(predictions[x]), "--> ", chr(mapp[np.argmax(predictions[x])]))
-            # print("class: ", np.argmax(test_y[x]),  "--> ", chr(mapp[np.argmax(test_y[x])]))
+            
             correct += 1
             # print("## correct")
         else:
-            # print("\n")
-            # print(f"{x})")
-            # print("guess: ", np.argmax(predictions[x]), "--> ", chr(mapp[np.argmax(predictions[x])]))
-            # print("class: ", np.argmax(test_y[x]),  "--> ", chr(mapp[np.argmax(test_y[x])]))
-
-            # print(preds)
-
+            
             incorrect += 1
             # print("incorrect")
 
@@ -315,27 +291,20 @@ def correct_percentage_on_test(predictions, pos, test_y, mapp, matchings):
 
 
 
-def build_dataset(train, test):
-    train_x = []
+def build_dataset(test):
+    
     test_x = []
-
-    for i in range(len(train)):
-        train_x.append(convert_training_data(train,i))
 
     for i in range(len(test)):
         test_x.append(convert_training_data(test,i))
 
-    train_x = np.asarray(train_x)
     test_x = np.asarray(test_x)
 
-
     # normalize the data
-    train_x = train_x.astype('float32')
-    train_x /= 255
     test_x = test_x.astype('float32')
     test_x /= 255
 
-    return train_x, test_x
+    return test_x
 
 
 
