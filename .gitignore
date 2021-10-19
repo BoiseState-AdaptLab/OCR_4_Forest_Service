@@ -7,8 +7,8 @@ ocr_4_forest_service/aligned-form.jpg
 ocr_4_forest_service/img_preprocessing/
 
 # pipeline output file
-# ocr_4_forest_service/test_data.csv
-ocr_4_forest_service/src/test_data.csv
+ocr_4_forest_service/test_data.csv
+# ocr_4_forest_service/src/test_data.csv
 
 # __pycache__ directories
 ocr_4_forest_service/__pycache__/
