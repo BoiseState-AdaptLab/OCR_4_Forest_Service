@@ -12,12 +12,15 @@ from PIL import Image
 from queue import LifoQueue
 import numpy as np
 import math
+import skimage.io
+import skimage.color
+import skimage.filters
 
-"""
-Definition of the main fuction
-"""
+
 def char_detection(field_img, field_name): # char_detection takes in a list of field images
-  
+    """
+    Definition of the main fuction
+    """
       
     # cv2.imshow('livestock', field_img)
     # # cv2.imwrite("field_img.jpg", field_img)
@@ -27,10 +30,10 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     # if field_name == "WRITEUP NO.":
     con_img = img_preprocess(field_img)
 
-    # cv2.imshow('preprocessed', con_img)
-    # # cv2.imwrite("field_img.jpg", field_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('preprocessed', con_img)
+    # cv2.imwrite("field_img.jpg", field_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     con_img = line_deletion(con_img)
   
@@ -43,11 +46,16 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     # exit()
     single_char_list = trace(con_img)
 
-    if len(single_char_list) < 1: # the list is empty
-        # try with a different image preprocessing technique 
-        con_img = img_enhancement(field_img)
-        con_img = line_deletion(con_img)
-        single_char_list = trace(con_img)
+    # if len(single_char_list) < 1: # the list is empty
+    #     # try with a different image preprocessing technique 
+    #     print("How often do we get in here? - ", field_name)
+    #     con_img = img_preprocess_hist(field_img)
+    #     cv2.imshow('preprocessed-hist', con_img)
+    #     # cv2.imwrite("field_img.jpg", field_img)
+    #     cv2.waitKey(0)
+    #     cv2.destroyAllWindows()
+    #     con_img = line_deletion(con_img)
+    #     single_char_list = trace(con_img)
 
     # print("single char list for writeup no:", len(single_char_list))
 
@@ -74,7 +82,7 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
             # cv2.destroyAllWindows()
             # cv2.imshow('Word segmentation 1', img[0])
             # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+            # cv2.destroyAllWindows()s
             segmented_imgs = word_seg_2(img[0])
             # print("segmented images", len(segmented_imgs))
           
@@ -189,20 +197,86 @@ def single_chars(dict_bbox_coord, tracing_data):
     return single_chars_list
 
 
-"""
-Performs the image preprocessing on the field image 
-before bounding boxes identification
-"""
 def img_preprocess(img):
 
     # perform the image preprocessing stepss
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
     ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+    # cv2.imshow(f'IMG_PREPROCESSING', thresh)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+ 
+    return con_img
+
+"""
+Performs the image preprocessing on the field image 
+before bounding boxes identification
+"""
+def img_preprocess_hist(img):
+
+    # perform the image preprocessing steps
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    dst = cv2.GaussianBlur(img,(5,5),cv2.BORDER_DEFAULT)
+
+    histogram = cv2.calcHist([dst], [0], None, [256], [0, 256])
+    t = find_thresh(histogram)
+
+    th, thresh = cv2.threshold(img,t,255, cv2.THRESH_BINARY_INV)
+    
+    # ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+
+    return con_img
+
+def img_preprocess_2(img):
+
+    # perform the image preprocessing stepss
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+    # cv2.imshow(f'IMG_PREPROCESSING', thresh)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
  
     return con_img
     
     
+def find_thresh(histogram):
+
+    # cast historgram to numpy array
+    # histogram = np.array(histogram)
+
+    # Find the peak in the histogram
+    peak =  int(max(histogram))
+
+    # Get the index of peak
+    peak_idx = np.where(histogram == peak)
+
+    # peak_idx is a tuple of numpy arrays
+    # So, we need to index into the first 
+    # element of the tuple, and then into
+    # the first element of the array ([0][0])
+    histogram = histogram[:peak_idx[0][0]+1]
+
+    # start froom the peak and go backwards
+    for item in reversed(histogram):
+        if item[0] < 50: # 50 seems like a good threshold
+            # break as soon as we get a value below 50
+            y_val = item[0]
+            break
+    
+    # find the index of just found value
+    y_idx = np.where(histogram == y_val)
+
+    # again, where() returns a tuple of
+    # np arrays, so we need to index them. 
+    t_val = y_idx[0][0] 
+
+    return t_val
+
 
 
 def find_char(preprocessed_field_img):
@@ -223,6 +297,7 @@ def find_char(preprocessed_field_img):
 
     # Open the image using the PIL library
     im = Image.fromarray(preprocessed_field_img)
+    width, height = im.size
     pixels = im.load()
 
     # clean the dictionary out 
@@ -230,10 +305,10 @@ def find_char(preprocessed_field_img):
   
     i = 0
     #iterate through the pixels in dst
-    while (x < im.size[0]): # for every pixel:
+    while (x < width): # for every pixel:
         y = 0
         
-        while (y < im.size[1]):
+        while (y < height):
             
             #if the pixel is white
             if pixels[x,y] != (0, 0, 0):
@@ -450,14 +525,15 @@ Accepts only the areas that are bigger than 100
 def valid_area(max_x, max_y, min_x, min_y):
     # calculate the area of the bbox to 
     # minimize noise
-    width = max_x - min_x
-    height = max_y - min_y
-    area = width * height
+    char_width = max_x - min_x
+    char_height = max_y - min_y
 
-    if area > 60:
+    char_area = char_width * char_height
+   
+    if char_area > 60: 
         return True
     else:
-        # print("## Error: The area was ", area)
+        # print("## Error: The area was ", char_area)
         return False
 
 
