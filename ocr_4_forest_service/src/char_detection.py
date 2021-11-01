@@ -22,6 +22,8 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     Definition of the main fuction
     """
       
+    dims = field_img.shape
+    total_pix = dims[0] * dims[1]
     # cv2.imshow('livestock', field_img)
     # # cv2.imwrite("field_img.jpg", field_img)
     # cv2.waitKey(0)
@@ -30,11 +32,18 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     # if field_name == "WRITEUP NO.":
     con_img = img_preprocess(field_img)
 
-    cv2.imshow('preprocessed', con_img)
-    # cv2.imwrite("field_img.jpg", field_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('preprocessed', con_img)
+    # # cv2.imwrite("field_img.jpg", field_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
+    black_pix = total_pix - cv2.countNonZero(con_img)
+    percentage_black  = black_pix/total_pix
+
+    if percentage_black > .96:
+      con_img = img_preprocess_hist(field_img)
+
+    con_img = cv2.cvtColor(con_img, cv2.COLOR_GRAY2BGR)
     con_img = line_deletion(con_img)
   
 
@@ -203,12 +212,12 @@ def img_preprocess(img):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
     ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-    con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+    # con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     # cv2.imshow(f'IMG_PREPROCESSING', thresh)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
  
-    return con_img
+    return thresh
 
 """
 Performs the image preprocessing on the field image 
@@ -218,17 +227,18 @@ def img_preprocess_hist(img):
 
     # perform the image preprocessing steps
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    dst = cv2.GaussianBlur(img,(5,5),cv2.BORDER_DEFAULT)
+    # dst = cv2.GaussianBlur(img,(5,5),cv2.BORDER_DEFAULT)
 
-    histogram = cv2.calcHist([dst], [0], None, [256], [0, 256])
+    histogram = cv2.calcHist([img], [0], None, [256], [0, 256])
     t = find_thresh(histogram)
 
     th, thresh = cv2.threshold(img,t,255, cv2.THRESH_BINARY_INV)
     
     # ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-    con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+    # con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
-    return con_img
+    return thresh
+
 
 def img_preprocess_2(img):
 
@@ -273,7 +283,10 @@ def find_thresh(histogram):
 
     # again, where() returns a tuple of
     # np arrays, so we need to index them. 
-    t_val = y_idx[0][0] 
+    if len(y_idx[0]) > 1:
+        t_val = y_idx[0][-1]
+    else:
+        t_val = y_idx[0][0]  
 
     return t_val
 

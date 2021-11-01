@@ -6,6 +6,7 @@ from ...src.char_detection import line_deletion
 from ...src.char_detection import trace
 from ...src.char_detection import word_segmentation
 from ...src.char_detection import word_seg_2
+import sys
 
 import numpy as np
 import glob
@@ -17,21 +18,39 @@ import skimage.filters
 
 
 def test_preprocessing_techniques():
-
+# def main():
     # imgs = cv2.imread('../../21-cropped_fields/WRITEUP NO..jpg', 1)
     # img_preprocess(imgs)
 
-    img = cv2.imread('../../cropped_fields/ALLOTMENT.jpg', 1)
+    img = cv2.imread('../../cropped_fields/FOREST.jpg', 1)
     # con_img = local_preprocesssing(img)
     con_img = img_preprocess(img)
 
-   
+    dims = img.shape
+    total_pix = dims[0] * dims[1]
+    print(total_pix)
+    black_pix = total_pix - cv2.countNonZero(con_img)
+    print(black_pix)
+    percentage_black  = black_pix/total_pix
+    print(percentage_black)
+
+    if percentage_black > .96:
+        print("We don't get in here")
+        con_img = local_preprocessing(img)
+        cv2.imshow(f'local preprocess', con_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    print("we got here")
     # plot_preprocessed(con_img)
-    
+    con_img = cv2.cvtColor(con_img, cv2.COLOR_GRAY2BGR)
+    print("but not here")
     con_img = line_deletion(con_img)
     cv2.imshow(f'after line deletion', con_img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    print("before trace")
+    sys.stdout.flush()
     single_char_list = trace(con_img)
     print("length of list: ", len(single_char_list))
     word_segmentation_list = []
@@ -101,16 +120,16 @@ def plot_preprocessed(con_img):
     # plt.xlim([0, 256])
 
     
-def local_preprocesssing(img):
+def local_preprocessing(img):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # dst = cv2.GaussianBlur(img,(5,5),cv2.BORDER_DEFAULT)
 
-
+   
     histogram = cv2.calcHist([img], [0], None, [256], [0, 256])
-    plt.plot(histogram, color='k')
-    plt.show()
+    # plt.plot(histogram, color='k')
+    # plt.show()
   
-    
+    print("Do we get in here")
     t = find_thresh(histogram)
     print("the thresh value chosen is", t)
  
@@ -120,9 +139,9 @@ def local_preprocesssing(img):
     cv2.imshow(f'thresh', dst)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    con_img = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
+    # con_img = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
 
-    return con_img
+    return dst
    
 
 
@@ -160,7 +179,6 @@ def find_thresh(histogram):
     if len(y_idx[0]) > 1:
         t_val = y_idx[0][-1]
     else:
-       
         t_val = y_idx[0][0] 
 
     return t_val
@@ -201,12 +219,12 @@ def img_preprocess(img):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
     ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-    con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+    # con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
     cv2.imshow(f'IMG_PREPROCESSING', thresh)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
  
-    return con_img
+    return thresh
     
 def img_enhancement(img):
     print("inside enhancement")
@@ -232,5 +250,9 @@ def img_enhancement(img):
 def noise_reduction(img):
     
     return cv2.bilateralFilter(img,9,75,75)
+
+
+# if __name__ == '__main__':
+#   main()
 
 
