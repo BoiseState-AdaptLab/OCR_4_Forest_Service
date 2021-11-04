@@ -24,18 +24,9 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
       
     dims = field_img.shape
     total_pix = dims[0] * dims[1]
-    # cv2.imshow('livestock', field_img)
-    # # cv2.imwrite("field_img.jpg", field_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    # word_segmentation_list = []
-    # if field_name == "WRITEUP NO.":
+    
     con_img = img_preprocess(field_img)
 
-    # cv2.imshow('preprocessed', con_img)
-    # # cv2.imwrite("field_img.jpg", field_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
 
     black_pix = total_pix - cv2.countNonZero(con_img)
     percentage_black  = black_pix/total_pix
@@ -47,26 +38,9 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     con_img = line_deletion(con_img)
   
 
-    # lines 48-54 need commenting out
-    # cv2.imshow('line detection', con_img)
-    # # cv2.imwrite("field_img.jpg", field_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    # exit()
+
     single_char_list = trace(con_img)
 
-    # if len(single_char_list) < 1: # the list is empty
-    #     # try with a different image preprocessing technique 
-    #     print("How often do we get in here? - ", field_name)
-    #     con_img = img_preprocess_hist(field_img)
-    #     cv2.imshow('preprocessed-hist', con_img)
-    #     # cv2.imwrite("field_img.jpg", field_img)
-    #     cv2.waitKey(0)
-    #     cv2.destroyAllWindows()
-    #     con_img = line_deletion(con_img)
-    #     single_char_list = trace(con_img)
-
-    # print("single char list for writeup no:", len(single_char_list))
 
     word_segmentation_list = []
     word_seg_list = []
@@ -74,39 +48,21 @@ def char_detection(field_img, field_name): # char_detection takes in a list of f
     for image in single_char_list:
         
         sliced_images = word_segmentation(image, field_name)
-        # print("sliced images:", type(sliced_images[0][0]))
-
-        # cv2.imshow('img', sliced_images[0][0])
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+       
 
         if sliced_images is None:
-          # print("for one of them we get in here")
+  
           break
         else:
 
           for img in sliced_images:
-            # cv2.imshow('img', img[0])
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
-            # cv2.imshow('Word segmentation 1', img[0])
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()s
-            segmented_imgs = word_seg_2(img[0])
-            # print("segmented images", len(segmented_imgs))
           
+            segmented_imgs = word_seg_2(img[0])
 
             word_seg_list.extend(segmented_imgs)
-        # for img in word_seg_list:
-        #   print(type(img))
-        #   # cv2.imshow('returned', img)
-        #   # cv2.waitKey(0)
-        #   # cv2.destroyAllWindows()
-        # print("chars list: ", len(word_seg_list))
-        word_segmentation_list = [(x,field_name) for x in word_seg_list]
-      # print("segmented images",  type(word_segmentation_list[0][0]))
      
-      # word_segmentation_list.extend(sliced_images)
+        word_segmentation_list = [(x,field_name) for x in word_seg_list]
+      
   
      
   

@@ -32,25 +32,3 @@ def test_tracing():
     
     assert len(img_list) == 8
 
-
-
-# def img_preprocess(img):
-# # 
-#     # perform the image preprocessing stepss
-#     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#     ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-#     con_img = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
- 
-#     return con_img
-
-
-
-
-
-
-
-
-   
-
-
-    
