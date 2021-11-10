@@ -10,6 +10,7 @@ from src.img_preprocessing import img_preprocessing
 from src.img_preprocessing import img_test_preprocessing
 from src.create_csv import create_csv
 from src.create_csv import create_test_csv
+from src.google_vision import google_vision_char_detection
 import argparse
 import os
 import cv2
@@ -21,6 +22,10 @@ def main():
 
     # construct the argument parser and parse the arguments
     ap = argparse.ArgumentParser()
+
+    ap.add_argument("-d", action='store_true',
+        help="signals to run the default program (Google Vision API)")
+
     ap.add_argument("-i", "--input", required=True,
         help="path to Forest Service form")
 
@@ -51,7 +56,6 @@ def main():
     
     args = vars(ap.parse_args())
 
-
     # load input image
     form = cv2.imread(args["input"])
 
@@ -61,7 +65,7 @@ def main():
     # the main functions are called in order of execution
     # determined by the pipeline
     if args['t'] is False:
-
+       
         # 1) the first step consists in aligning the form
         # we want to process with one of our templates in 
         # order to be able to work with know xy-coordinates 
@@ -77,6 +81,14 @@ def main():
 
         if args['crop'] is True: 
             crop_exit(field_imgs)
+            exit()
+
+        # if the program was run with the -d [default] flag, 
+        # the Google Vision APi executes and write the results to
+        # a json file.
+        if args['d'] is True:
+            google_vision_char_detection(field_imgs)
+            print("The Google Vision API results have been saved in the google_vision_results.json file.")
             exit()
 
         # 3) Now that we have field images, we  

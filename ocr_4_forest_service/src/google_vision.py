@@ -1,49 +1,41 @@
 import io
 import os
 import json
+import cv2
 from google.cloud import vision_v1p3beta1 as vision
+
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS']='/Users/florianaciaglia/Desktop/forestservice-331216-d7b2871c2dfe.json'
 
-TOP_FORM = ['WRITEUP NO..jpg', 'PHOTO NO..jpg', 'FOREST.jpg', 'RANGER DISTRICT.jpg', 'ALLOTMENT.jpg', 'EXAMINER.jpg', 'DATE.jpg', 
-            'TRANSECT NO..jpg', 'PLOT SIZE.jpg', 'PLOT INTERVAL.jpg', 'TYPE DESIGNATION.jpg', 'KINF OF LIVESTOCK.jpg', 'SLOPE.jpg',
-            'EXPOSURE.jpg', 'ASPECT.jpg', 'LOCATION.jpg', 'ELEVATION.jpg']
+TOP_FORM = ['WRITEUP NO.', 'PHOTO NO.', 'FOREST', 'RANGER DISTRICT', 'ALLOTMENT', 'EXAMINER', 'DATE', 
+            'TRANSECT NO.', 'PLOT SIZE', 'PLOT INTERVAL', 'TYPE DESIGNATION', 'KINF OF LIVESTOCK', 'SLOPE',
+            'EXPOSURE', 'ASPECT', 'LOCATION', 'ELEVATION']
 
-def main():
+def google_vision_char_detection(field_images):
     pred_json = {}
-    directory = os.fsencode('cropped_fields')
-
-    for image in os.listdir(directory):
-        
-        image = image.decode("utf-8")
-        # print("getting in here")
-        if image in TOP_FORM:
+   
+    for image, field_name in field_images:
+     
+        if field_name in TOP_FORM:
+         
+            pred_json[field_name] = {}
           
-            path = os.getcwd() + '/cropped_fields/' + image
-            pred_json[image] = {}
-          
-            detect_handwritten_ocr(path, pred_json[image])
+            detect_handwritten_ocr(image, pred_json[field_name])
     
     with open('google_vision_results.json', 'w') as outfile:
         json.dump(pred_json, outfile)
 
 
-def detect_handwritten_ocr(path, json_list):
+def detect_handwritten_ocr(image, json_list):
     """Detects handwritten characters in a local image.
 
     Args:
     path: The path to the local file.
     """
-   
-    
     
     client = vision.ImageAnnotatorClient()
 
-    with io.open(path, 'rb') as image_file:
-        content = image_file.read()
-
-# 
-    image = vision.Image(content=content)
+    image = vision.Image(content=cv2.imencode('.jpg', image)[1].tostring())
   
     # Language hint codes for handwritten OCR:
     # en-t-i0-handwrit, mul-Latn-t-i0-handwrit
@@ -81,8 +73,6 @@ def detect_handwritten_ocr(path, json_list):
                         # json_list['Symbol'] = symbol.text
                         # json_list['Symbol - confidence'] = symbol.confidence
 
-    # print(json_list)
-    # exit()
 
     if response.error.message:
         raise Exception(
@@ -90,5 +80,5 @@ def detect_handwritten_ocr(path, json_list):
             'https://cloud.google.com/apis/design/errors'.format(
                 response.error.message))
 
-if __name__ == '__main__':
-  main()
+# if __name__ == '__main__':
+#   main()
