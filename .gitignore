@@ -8,7 +8,7 @@ ocr_4_forest_service/img_preprocessing/
 
 # pipeline output file
 ocr_4_forest_service/test_data.csv
-# ocr_4_forest_service/src/test_data.csv
+
 
 # __pycache__ directories
 ocr_4_forest_service/__pycache__/
@@ -20,6 +20,8 @@ ocr_4_forest_service/src/.ipynb_checkpoints/
 
 # model output json file with preds
 ocr_4_forest_service/model/field_preds.json
+ocr_4_forest_service/field_preds.json
+ocr_4_forest_service/*.json
 
 # directories that get generated for testing
 ocr_4_forest_service/tests/fields/
