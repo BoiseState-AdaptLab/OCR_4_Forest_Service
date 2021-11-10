@@ -5,7 +5,7 @@ import cv2
 from google.cloud import vision_v1p3beta1 as vision
 
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS']='/Users/florianaciaglia/Desktop/forestservice-331216-d7b2871c2dfe.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS']='/Users/florianaciaglia/Desktop/forestservice-331216-d7b2871c2dfe.json' # this needs to be changed to Cathie's account
 
 TOP_FORM = ['WRITEUP NO.', 'PHOTO NO.', 'FOREST', 'RANGER DISTRICT', 'ALLOTMENT', 'EXAMINER', 'DATE', 
             'TRANSECT NO.', 'PLOT SIZE', 'PLOT INTERVAL', 'TYPE DESIGNATION', 'KINF OF LIVESTOCK', 'SLOPE',
@@ -16,12 +16,17 @@ def google_vision_char_detection(field_images):
    
     for image, field_name in field_images:
      
+        # for now, we are just working on the
+        # top fields of the form
         if field_name in TOP_FORM:
          
+            # this dictionary keeps track of
+            # the OCR results
             pred_json[field_name] = {}
           
             detect_handwritten_ocr(image, pred_json[field_name])
     
+    # Store all our results into JSON file
     with open('google_vision_results.json', 'w') as outfile:
         json.dump(pred_json, outfile)
 
@@ -30,11 +35,12 @@ def detect_handwritten_ocr(image, json_list):
     """Detects handwritten characters in a local image.
 
     Args:
-    path: The path to the local file.
+    image: numpy array of our field image
     """
     
     client = vision.ImageAnnotatorClient()
 
+    # read numpy array as a byte string and directly pass it to Vision API
     image = vision.Image(content=cv2.imencode('.jpg', image)[1].tostring())
   
     # Language hint codes for handwritten OCR:
@@ -47,31 +53,19 @@ def detect_handwritten_ocr(image, json_list):
                                               image_context=image_context)
 
 
-    # print('Full Text: {}'.format(response.full_text_annotation.text))
-    
     json_list['Full text'] = response.full_text_annotation.text.replace("\n", " ")
 
     for page in response.full_text_annotation.pages:
         for block in page.blocks:
-            # print('\nBlock confidence: {}\n'.format(block.confidence))
+        
             json_list['Block confidence'] = block.confidence
             for paragraph in block.paragraphs:
-                # print('Paragraph confidence: {}'.format(
-                #     paragraph.confidence))
-                # json_list['Paragraph confidence'] = paragraph.confidence
+            
                 for word in paragraph.words:
                     word_text = ''.join([
                         symbol.text for symbol in word.symbols
                     ])
-                    # print('Word text: {} (confidence: {})'.format(
-                    #     word_text, word.confidence))
-                    # json_list['Word text'] = word_text
-                    # json_list['Word text - confidence'] = word.confidence
-                    # for symbol in word.symbols:
-                        # print('\tSymbol: {} (confidence: {})'.format(
-                        #     symbol.text, symbol.confidence))
-                        # json_list['Symbol'] = symbol.text
-                        # json_list['Symbol - confidence'] = symbol.confidence
+        
 
 
     if response.error.message:
@@ -80,5 +74,3 @@ def detect_handwritten_ocr(image, json_list):
             'https://cloud.google.com/apis/design/errors'.format(
                 response.error.message))
 
-# if __name__ == '__main__':
-#   main()
