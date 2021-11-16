@@ -12,24 +12,16 @@ WIDTH = 28
 class_mapping = []
 pred_data = {}
 
+#used to be main
+def run_model():
 
-def main():
-
-    # Argument parsing 
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--input", required=True,
-        help="path to csv file")
-
-    ap.add_argument("-mapp", "--mapp", required=True,
-        help="path to mapping dataset")
-
-    ap.add_argument("-model", "--model", required=True,
-        help="path to pre-trained model")
-    args = vars(ap.parse_args())
+    input = "test_data.csv"
+    mapping = "model/datasets/emnist-balanced-mapping.txt"
+    model = "model/models/model_2.h5"
 
 
     # load the csv file as test data 
-    test = pd.read_csv(args['input'], header=None)
+    test = pd.read_csv(input, header=None)
 
     # setting up the field names to match with predictions for output
     field_name = test.loc[:, 785]
@@ -44,7 +36,7 @@ def main():
 
 
     # load Kaggle EMNIST mapping dataset
-    mapp = pd.read_csv(args["mapp"], delimiter = ' ', header=None, usecols=[1], squeeze=True)
+    mapp = pd.read_csv(mapping, delimiter = ' ', header=None, usecols=[1], squeeze=True)
 
     # mapps each letter to a number
     class_num = create_mapping(mapp)
@@ -59,7 +51,7 @@ def main():
     test_x = data_reshape(test_x)
     
     # load the pre-trained model_2
-    model = load_model(args)
+    model = load_model(model)
 
     # call predict on the classes labels
     predictions = predict_classes(test_x, model)
@@ -175,9 +167,9 @@ def top_3(predictions, test_y):
 
 
 
-def load_model(args):
+def load_model(model):
     
-    model_2 = keras.models.load_model(args["model"]) # 2-conv-128-nodes-2-dense-0.2-Dropout
+    model_2 = keras.models.load_model(model) # 2-conv-128-nodes-2-dense-0.2-Dropout
     
     return model_2
 

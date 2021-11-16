@@ -11,6 +11,7 @@ from src.img_preprocessing import img_test_preprocessing
 from src.create_csv import create_csv
 from src.create_csv import create_test_csv
 from src.google_vision import google_vision_char_detection
+from model.handwriting_model import run_model
 import argparse
 import os
 import cv2
@@ -23,8 +24,8 @@ def main():
     # construct the argument parser and parse the arguments
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("-d", action='store_true',
-        help="signals to run the default program (Google Vision API)")
+    ap.add_argument("-p", action='store_true',
+        help="signals to run the pipeline. If not specified the Google API runs.")
 
     ap.add_argument("-i", "--input", required=True,
         help="path to Forest Service form")
@@ -37,6 +38,9 @@ def main():
 
     ap.add_argument("-t",  action='store_true',
         help="Testing pipeline execution flag. If not specified, the program executes in production mode")
+
+    ap.add_argument("-combine",  action='store_true',
+        help="Combine pipeline and google API flag. Both programs will be run and the outputs will be combined.")
 
     ap.add_argument("-align",  action='store_true',
         help="Stops the execution after form alignment and saves the aligned form to a new file.\n" + 
@@ -62,10 +66,13 @@ def main():
     # load template image
     temp = cv2.imread(args["template"])
 
-    # the main functions are called in order of execution
-    # determined by the pipeline
+    # check for wrong flag settings
+    if args['p'] is True and args['combine'] is True:
+        print("Error: you can't set the pipeline (-p) flag and the combine (-combine) flag at the same time.")
+        exit()
+    
     if args['t'] is False:
-       
+      
         # 1) the first step consists in aligning the form
         # we want to process with one of our templates in 
         # order to be able to work with know xy-coordinates 
@@ -86,43 +93,38 @@ def main():
         # if the program was run with the -d [default] flag, 
         # the Google Vision APi executes and write the results to
         # a json file.
-        if args['d'] is True:
-            google_vision_char_detection(field_imgs)
-            print("The Google Vision API results have been saved in the google_vision_results.json file.")
-            exit()
+        if args['p'] is True:
+            
 
-        # 3) Now that we have field images, we  
-        # detect single characters in the fields 
-        # and crop single characters images out of the field
-        single_chars = []
-        for image, field_name in field_imgs:
-            # print(field_name)
-            on_field_single_chars = char_detection(image, field_name)
-            single_chars.extend(on_field_single_chars)
-        
-        if args['char'] is True:
-            char_exit(single_chars)
-            exit()
+            # 3) Now that we have field images, we  
+            # detect single characters in the fields 
+            # and crop single characters images out of the field
+            single_chars = find_single_chars(field_imgs, args)
 
-        # 4) Finally, we pre process each single character
-        # image to minimize noise and refine the pen stroke.
-        preprocessed_imgs = img_preprocessing(single_chars)
+            if args['char'] is True:
+                char_exit(single_chars)
+                exit()
 
-        if args['preprocess'] is True:
-            preprocess_exit(preprocessed_imgs)
-            exit()
+            # 4) Finally, we pre process each single character
+            # image to minimize noise and refine the pen stroke.
+            preprocessed_imgs = img_preprocessing(single_chars)
+            
 
-        # 6) This last step will generate a csv file with the RGB 
-        # value of each pixel in the image - this csv file will
-        # be the input for the Optical Character Recognition model. 
-        create_csv(preprocessed_imgs)
-        
-        print("Done Executing Production Pipeline!")
-        
+            if args['preprocess'] is True:
+                preprocess_exit(preprocessed_imgs)
+                exit()
+
+            # 6) This last step will generate a csv file with the RGB 
+            # value of each pixel in the image - this csv file will
+            # be the input for the Optical Character Recognition model. 
+            create_csv(preprocessed_imgs)
+            
+            print("Done Executing Production Pipeline!")
+            
     else: # The program is being run in testing mode.
-          # The execution will be similar to the 
-          # production mode except for classifications. 
-
+        # The execution will be similar to the 
+        # production mode except for classifications. 
+   
         # 1) We begin the execution from the bounding box 
         # cropping because the JSON file provided was 
         # manually generated to incorpotate single characters.
@@ -138,7 +140,35 @@ def main():
         create_test_csv(preprocessed_imgs)
 
         print("Done Executing Testing Pipeline!")
+
+    if args['p'] is False or args['combine'] is True:
+        google_vision_char_detection(field_imgs)
+        print("The Google Vision API results have been saved in the google_vision_results.json file.")
+
+    if args['combine'] is True:
+        print("Combination of results in progress...")
+        combine()
+
+    return 0
         
+def combine():
+    # produce the pipeline output by running the model
+    run_model() # produce the field_pred.json
+    print("Pipeline model ran")
+    # At this point, we have field_pred.json and google_vision_results.json
+    # 1) Compare the json files
+    # 2) Extract the best data for each field
+    # 3) Combine new results into new json file
+
+
+def find_single_chars(field_imgs):
+    single_chars = []
+    for image, field_name in field_imgs:
+        # print(field_name)
+        on_field_single_chars = char_detection(image, field_name)
+        single_chars.extend(on_field_single_chars)
+
+    return single_chars
 
 
 def align_exit(aligned_form):
