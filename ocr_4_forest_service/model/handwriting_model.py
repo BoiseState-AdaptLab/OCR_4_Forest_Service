@@ -315,5 +315,5 @@ def get_char(df, row):
 
 
 
-if __name__ == '__main__':
-  main()
+# if __name__ == '__main__':
+#   main()

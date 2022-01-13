@@ -9,14 +9,18 @@ ocr_4_forest_service/img_preprocessing/
 # pipeline output file
 ocr_4_forest_service/test_data.csv
 
-
 # __pycache__ directories
 ocr_4_forest_service/__pycache__/
 ocr_4_forest_service/src/__pycache__/
 ocr_4_forest_service/tests/__pycache__/
+ocr_4_forest_service/model/__pycache__/
+ocr_4_forest_service/tests/test_char_detection/__pycache__/
+ocr_4_forest_service/tests/test_create_csv/__pycache__/
+ocr_4_forest_service/tests/test_crop_fields/__pycache__/
 
 # jupyter notebook checkpoints
 ocr_4_forest_service/src/.ipynb_checkpoints/
+ocr_4_forest_service/model/.ipynb_checkpoints/
 
 # model output json file with preds
 ocr_4_forest_service/model/field_preds.json
@@ -61,6 +65,7 @@ ocr_4_forest_service/tests/field_14_coord.json
 ocr_4_forest_service/tests/field_15/
 ocr_4_forest_service/tests/field_15_coord.json
 ocr_4_forest_service/tests/bbox_coord.json
+
 
 
 

@@ -11,13 +11,16 @@ from src.img_preprocessing import img_test_preprocessing
 from src.create_csv import create_csv
 from src.create_csv import create_test_csv
 from src.google_vision import google_vision_char_detection
-from model.handwriting_model import run_model
+from src.combine_results import combine 
+from src.exit_exec import align_exit
+from src.exit_exec import crop_exit
+from src.exit_exec import char_exit
+from src.exit_exec import preprocess_exit
+
 import argparse
 import os
 import cv2
 
-# global var for current directory
-curr_dir = os.getcwd()
 
 def main():
 
@@ -150,15 +153,6 @@ def main():
         combine()
 
     return 0
-        
-def combine():
-    # produce the pipeline output by running the model
-    run_model() # produce the field_pred.json
-    print("Pipeline model ran")
-    # At this point, we have field_pred.json and google_vision_results.json
-    # 1) Compare the json files
-    # 2) Extract the best data for each field
-    # 3) Combine new results into new json file
 
 
 def find_single_chars(field_imgs):
@@ -169,81 +163,6 @@ def find_single_chars(field_imgs):
         single_chars.extend(on_field_single_chars)
 
     return single_chars
-
-
-def align_exit(aligned_form):
-    cv2.imwrite('aligned-form.jpg', aligned_form)
-    print("Pipeline executed until after form alignment step."+ 
-            "\n\t-The aligned form has been saved to this directory.")
-
-
-def crop_exit(field_imgs):
-    new_dir = 'cropped_fields'
-    path = curr_dir + '/' + new_dir
-    isExist = os.path.exists(path)
-
-    # create the dir where to store cropped images, 
-    # if it doesn't exist already
-    if not isExist:
-        os.mkdir(os.path.join(curr_dir, new_dir))
-    else: # delete old files
-        for f in os.listdir(path):
-            os.remove(os.path.join(path, f))
-    
-    for image in field_imgs:
-        img_name = image[1] + '.jpg'
-        cv2.imwrite(os.path.join(path , img_name), image[0])
-    print("Pipeline executed until after crop fields step." +
-            "\n\t-The cropped images have been saved inside the /cropped_fields directory.")
-
-
-def char_exit(single_chars):
-    new_dir = 'char_detection'
-    path = curr_dir + '/' + new_dir
-    isExist = os.path.exists(path)
-
-    # create the dir where to store cropped images, 
-    # if it doesn't exist already
-    if not isExist:
-        os.mkdir(os.path.join(curr_dir, new_dir))
-    else: # delete old files
-        for f in os.listdir(path):
-            os.remove(os.path.join(path, f))
-
-    counter = 0
-   
-    for pair in single_chars:
-        img_name = pair[1] + '-' + str(counter) + '.jpg'
-        cv2.imwrite(os.path.join(path , img_name), pair[0])
-        counter = counter + 1
-
-
-    print("Pipeline executed until after character detection step." +
-            "\n\t-The cropped images have been saved inside the /char_detection directory.")
-
-
-
-def preprocess_exit(preprocessed_imgs):
-    new_dir = 'img_preprocessing'
-    path = curr_dir + '/' + new_dir
-    isExist = os.path.exists(path)
-
-    # create the dir where to store cropped images, 
-    # if it doesn't exist already
-    if not isExist:
-        os.mkdir(os.path.join(curr_dir, new_dir))
-    else: # delete old files
-        for f in os.listdir(path):
-            os.remove(os.path.join(path, f))
-
-    counter = 0
-    
-    for pair in preprocessed_imgs:
-        img_name = pair[1] + '-' + str(counter) + '.jpg'
-
-        cv2.imwrite(os.path.join(path , img_name), pair[0])
-        counter = counter + 1
-    print("Pipeline executed until after image preprocessing step. \n\t-The cropped images have been saved inside the /img_preprocessing directory.")
 
 
 
