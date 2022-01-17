@@ -56,7 +56,7 @@ $ python ocr_4_forest_service -i <name-of-pdf-form> -json <json-coordinate-file>
 
 Thid command will create a csv file called `test_data.csv` that will be the input to the Optical Character Recognition model. 
 
-If you want to run the testing pipeline, run the following code (The same as above but followed by the `-t` flag):
+If you want to run the testing pipeline, execute the following command (The same as above but followed by the `-t` flag):
 ```
 $ python ocr_4_forest_service -i <name-of-pdf-form> -json <json-coordinate-file> -temp <template-for-file-alignment> -t
 ```
