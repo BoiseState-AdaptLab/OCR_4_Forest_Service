@@ -51,14 +51,14 @@ The pipeline can be run in **production** mode or **testing** mode (`-t`).
 
 To run the production pipeline:
 ```
-$ python ocr_4_forest_service -i <name-of-pdf-form> -json <json-coordinate-file> -temp <template-for-file-alignment>
+$ python ocr_4_forest_service.py -i <name-of-pdf-form> -json <json-coordinate-file> -temp <template-for-file-alignment>
 ```
 
 Thid command will create a csv file called `test_data.csv` that will be the input to the Optical Character Recognition model. 
 
 If you want to run the testing pipeline, execute the following command (The same as above but followed by the `-t` flag):
 ```
-$ python ocr_4_forest_service -i <name-of-pdf-form> -json <json-coordinate-file> -temp <template-for-file-alignment> -t
+$ python ocr_4_forest_service.py -i <name-of-pdf-form> -json <json-coordinate-file> -temp <template-for-file-alignment> -t
 ```
 `Note`: When running the testing pipeline, the json file needs to include labels for each field. We provide some instances of these files inside the `inputs/jsons
 ` directory, each named after the input form.  
