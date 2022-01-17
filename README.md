@@ -60,8 +60,7 @@ If you want to run the testing pipeline, execute the following command (The same
 ```
 $ python ocr_4_forest_service.py -i <name-of-pdf-form> -json <json-coordinate-file> -temp <template-for-file-alignment> -t
 ```
-`Note`: When running the testing pipeline, the json file needs to include labels for each field. We provide some instances of these files inside the `inputs/jsons
-` directory, each named after the input form.  
+`Note`: When running the testing pipeline, the json file needs to include labels for each field. We provide some instances of these files inside the `inputs/jsons` directory, each named after the input form.  
 
 
 ## UML Diagram
