@@ -8,12 +8,16 @@
 
 
 ## General info
-OCR_4_Forest_Service implements a pdf processing pipeline used to extract handwritten words from the Forest Serive forms. 
+OCR_4_Forest_Service implements a pdf processing pipeline used to extract handwritten words from the Forest Service forms. 
 	
 ## Technologies
 Make sure you have the following installed:
 * Python: 3.7
 * OpenCV: 4.5
+* TensorFlow 2.6
+* scikit-image 0.16.2
+* imutils 0.5.4
+* google-cloud-vision 2.6.3 --```NOTE: Google Vision version not currently working! Remember to use the -p flag to run the normal pipeline.```
 	
 ## Setup
 To run this project, clone it locally using the following command:
