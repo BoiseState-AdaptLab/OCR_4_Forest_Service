@@ -11,7 +11,7 @@
 OCR_4_Forest_Service implements a pdf processing pipeline used to extract handwritten words from the Forest Serive forms. 
 	
 ## Technologies
-Project is created with:
+Make sure you have the following installed:
 * Python: 3.7
 * OpenCV: 4.5
 	
