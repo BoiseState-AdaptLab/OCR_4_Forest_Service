@@ -102,7 +102,7 @@ def main():
             # 3) Now that we have field images, we  
             # detect single characters in the fields 
             # and crop single characters images out of the field
-            single_chars = find_single_chars(field_imgs, args)
+            single_chars = find_single_chars(field_imgs)
 
             if args['char'] is True:
                 char_exit(single_chars)
