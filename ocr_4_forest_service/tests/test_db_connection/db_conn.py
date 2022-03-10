@@ -4,21 +4,18 @@
 from os import path
 import sys
 
-# sys.path.append(path.abspath('../../../../ForestryServiceDatabase/db/orm_scripts/pipe_get_data'))
+sys.path.append(path.abspath('/home/FLOCIAGLIA/ForestryServiceDatabase/db/orm_scripts'))
 
 from pipe_get_data import get_most_similar_guess
+
+
 
 def main():
 
     guesses = ['shep', 'cheep', 'sheep']
     field = 'kind of livestock'
-    get_best_match(guesses, field)
-
-
-def get_best_match(guesses, field):
     best_match = get_most_similar_guess(guesses, field)
-    print("Final return statement: ", best_match)
-    return best_match
+    print("best match: ", best_match)
 
 
 if __name__ == "__main__":
