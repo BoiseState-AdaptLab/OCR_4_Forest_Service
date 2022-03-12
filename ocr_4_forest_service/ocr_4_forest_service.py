@@ -42,8 +42,8 @@ def main():
     ap.add_argument("-t",  action='store_true',
         help="Testing pipeline execution flag. If not specified, the program executes in production mode")
 
-    ap.add_argument("-combine",  action='store_true',
-        help="Combine pipeline and google API flag. Both programs will be run and the outputs will be combined.")
+    # ap.add_argument("-combine",  action='store_true',
+    #     help="Combine pipeline and google API flag. Both programs will be run and the outputs will be combined.")
 
     ap.add_argument("-align",  action='store_true',
         help="Stops the execution after form alignment and saves the aligned form to a new file.\n" + 
@@ -148,9 +148,9 @@ def main():
         google_vision_char_detection(field_imgs)
         print("The Google Vision API results have been saved in the google_vision_results.json file.")
 
-    if args['combine'] is True:
-        print("Combination of results in progress...")
-        combine()
+    # if args['combine'] is True:
+    #     print("Combination of results in progress...")
+    #     combine()
 
     return 0
 
