@@ -56,12 +56,14 @@ def run_model():
     # call predict on the classes labels
     predictions = predict_classes(test_x, model)
     
+    
     # get model predictions on each image in test
     final_model_prediction = predict_models(model, test_x)
+   
 
     # matches each image to its field name 
     matchings = np.c_[predictions, field_name]
-    # print(matchings)
+
 
     # runs the model classification and stores data into pred_data
     accuracy_score = single_models(final_model_prediction, test_y, mapp, matchings) 
@@ -84,8 +86,6 @@ def single_models(final_model_prediction, test_y,mapp, matchings):
     
 
 
-
-
 def combine_models(prediction_1, prediction_2, prediction_3, prediction_4, prediction_5, test_y, pred_data,  field_name, mapp):
     combined_correct = 0
     combined_incorrect = 0
@@ -103,11 +103,11 @@ def combine_models(prediction_1, prediction_2, prediction_3, prediction_4, predi
 
 
         combined_model_prediction = model_jury_ruling(model_1_pred, model_2_pred, model_3_pred, model_4_pred, model_5_pred)
-        print(type(combined_model_prediction))
+        # print(type(combined_model_prediction))
         # print(len(combined_model_prediction))
 
-        print(type(field_name))
-        print(len(field_name))
+        # print(type(field_name))
+        # print(len(field_name))
 
         # matchings = np.c_[combined_model_prediction.item(), field_name]
         matchings = np.column_stack((combined_model_prediction,field_name))
@@ -129,7 +129,7 @@ def combine_models(prediction_1, prediction_2, prediction_3, prediction_4, predi
     create_json(pred_data)
 
     accuracy_of_combined_models = (combined_correct / (combined_correct + combined_incorrect))* 100
-    print('Accuracy of combined models: {}%'.format(accuracy_of_combined_models))
+    # print('Accuracy of combined models: {}%'.format(accuracy_of_combined_models))
 
 
 
@@ -274,6 +274,14 @@ def correct_percentage_on_test(predictions, pos, test_y, mapp, matchings):
             incorrect += 1
             # print("incorrect")
 
+        # print("this is pred data", pred_data)
+        # print(" ")
+
+        # print("this is matchings", matchings)
+        # print("*** here", pred_data[matchings[x][1]]['guesses'])
+
+
+      
         pred_data[matchings[x][1]]['guesses'].append(chr(mapp[np.argmax(predictions[x])]))
         pred_data[matchings[x][1]]['pred_list'].append(preds)
     
