@@ -16,6 +16,7 @@ from src.exit_exec import align_exit
 from src.exit_exec import crop_exit
 from src.exit_exec import char_exit
 from src.exit_exec import preprocess_exit
+from model.handwriting_model import run_model
 
 import argparse
 import os
@@ -42,9 +43,6 @@ def main():
     ap.add_argument("-t",  action='store_true',
         help="Testing pipeline execution flag. If not specified, the program executes in production mode")
 
-    # ap.add_argument("-combine",  action='store_true',
-    #     help="Combine pipeline and google API flag. Both programs will be run and the outputs will be combined.")
-
     ap.add_argument("-align",  action='store_true',
         help="Stops the execution after form alignment and saves the aligned form to a new file.\n" + 
         "If not specified, the program executes until completion")
@@ -68,11 +66,6 @@ def main():
 
     # load template image
     temp = cv2.imread(args["template"])
-
-    # check for wrong flag settings
-    if args['p'] is True and args['combine'] is True:
-        print("Error: you can't set the pipeline (-p) flag and the combine (-combine) flag at the same time.")
-        exit()
     
     if args['t'] is False:
       
@@ -93,7 +86,7 @@ def main():
             crop_exit(field_imgs)
             exit()
 
-        # if the program was run with the -d [default] flag, 
+        # if the program was run without flags, 
         # the Google Vision APi executes and write the results to
         # a json file.
         if args['p'] is True:
@@ -122,7 +115,13 @@ def main():
             # be the input for the Optical Character Recognition model. 
             create_csv(preprocessed_imgs)
             
-            print("Done Executing Production Pipeline!")
+            print("Done Executing Production Pipeline! It's time to run the model...")
+
+            # executes the model on the data we collected with the pipeline and
+            # stores the results in field_preds.json
+            run_model()
+
+            print("The model ran! Your results are in the field_preds.json file. ")
             
     else: # The program is being run in testing mode.
         # The execution will be similar to the 
@@ -144,7 +143,7 @@ def main():
 
         print("Done Executing Testing Pipeline!")
 
-    if args['p'] is False or args['combine'] is True:
+    if args['p'] is False:
         google_vision_char_detection(field_imgs)
         print("The Google Vision API results have been saved in the google_vision_results.json file.")
 
