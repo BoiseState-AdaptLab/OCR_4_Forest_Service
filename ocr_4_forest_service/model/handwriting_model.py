@@ -32,7 +32,7 @@ def run_model():
 
     # set up the format of the output json file
     for name in field_name:
-        pred_data[name] = {'guesses' : [], 'pred_list': []}
+        pred_data[name] = {'Full text' : [], 'pred_list': []}
 
 
     # load Kaggle EMNIST mapping dataset
@@ -123,7 +123,7 @@ def combine_models(prediction_1, prediction_2, prediction_3, prediction_4, predi
         else:
             combined_incorrect += 1
 
-        pred_data[matchings[i][1]]['guesses'].append(chr(mapp[np.argmax(combined_model_prediction[i])]))
+        pred_data[matchings[i][1]]['Full text'].append(chr(mapp[np.argmax(combined_model_prediction[i])]))
         pred_data[matchings[i][1]]['pred_list'].append(preds)
 
     create_json(pred_data)
@@ -278,11 +278,11 @@ def correct_percentage_on_test(predictions, pos, test_y, mapp, matchings):
         # print(" ")
 
         # print("this is matchings", matchings)
-        # print("*** here", pred_data[matchings[x][1]]['guesses'])
+        # print("*** here", pred_data[matchings[x][1]]['Full text'])
 
 
       
-        pred_data[matchings[x][1]]['guesses'].append(chr(mapp[np.argmax(predictions[x])]))
+        pred_data[matchings[x][1]]['Full text'].append(chr(mapp[np.argmax(predictions[x])]))
         pred_data[matchings[x][1]]['pred_list'].append(preds)
     
     create_json(pred_data)
