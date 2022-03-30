@@ -18,7 +18,7 @@ def open_file(file_name):
     # returns JSON object as
     # a dictionary
     data = json.load(f)
-
+    print("--- OPENED ", file_name)
     return data
 
 
@@ -28,8 +28,8 @@ def get_data(file_path, field_name):
 
     for dt in data:
         if dt == field_name:
-            # print(field_name, ": ", Gdata[dt]['Full text']) # <-- if you want to know the accuracy percentage of the guess, 
-                                                            #     print Gdata[dt]['Block confidence']
+            print(field_name, ": ", data[dt]['Full text']) # <-- if you want to know the accuracy percentage of the guess, 
+                                                            #     print data[dt]['Block confidence']
             guess_list =  data[dt]['Full text']
     
     return create_word(guess_list)
