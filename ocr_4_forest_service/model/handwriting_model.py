@@ -16,8 +16,8 @@ pred_data = {}
 def run_model():
 
     input = "test_data.csv"
-    mapping = "model/datasets/emnist-balanced-mapping.txt"
-    model = "model/models/model_2.h5"
+    mapping = "ocr_4_forest_service/model/datasets/emnist-balanced-mapping.txt"
+    model = "ocr_4_forest_service/model/models/model_2.h5"
 
 
     # load the csv file as test data 
