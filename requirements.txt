@@ -1,0 +1,8 @@
+opencv-python
+matplotlib
+imutils
+scikit-image
+google-cloud
+google-cloud-vision
+pandas
+tensorflow==2.5.0
