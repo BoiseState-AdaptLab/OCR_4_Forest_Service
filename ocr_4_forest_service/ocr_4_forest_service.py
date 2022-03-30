@@ -10,8 +10,7 @@ from src.img_preprocessing import img_preprocessing
 from src.img_preprocessing import img_test_preprocessing
 from src.create_csv import create_csv
 from src.create_csv import create_test_csv
-from src.google_vision import google_vision_char_detection
-from src.combine_results import combine 
+from src.google_vision import google_vision_char_detection 
 from src.exit_exec import align_exit
 from src.exit_exec import crop_exit
 from src.exit_exec import char_exit
@@ -29,7 +28,7 @@ def main():
     ap = argparse.ArgumentParser()
 
     ap.add_argument("-p", action='store_true',
-        help="signals to run the pipeline. If not specified the Google API runs.")
+        help="signals to run the pipeline. If not specified the Google Vision API runs.")
 
     ap.add_argument("-i", "--input", required=True,
         help="path to Forest Service form")
