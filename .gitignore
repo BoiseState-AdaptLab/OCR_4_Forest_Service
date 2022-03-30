@@ -1,5 +1,8 @@
 .DS_Store
 
+#virtual environment folder
+venv/
+
 # directories that get generated from pipeline
 ocr_4_forest_service/char_detection/
 ocr_4_forest_service/cropped_fields/
