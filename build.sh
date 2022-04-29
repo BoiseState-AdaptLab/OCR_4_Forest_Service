@@ -1,9 +1,35 @@
 #!/bin/bash
 
-. venv/bin/activate
+. forest_env/bin/activate
+
+while getopts i:v:n: opt; 
+do
+    case ${opt} in
+        # Input file name
+        i) input=${OPTARG};;
+        # run the production pipeline
+        v)  version=${OPTARG};;
+        # template number
+        n)  number=${OPTARG};;
+
+        \?) # Invalid option
+            echo "Error: You entered an invalid flag."
+            exit 1;;
+    esac
+done
+
 
 # This command will run the pipeline with the inputs provided
-python3 ocr_4_forest_service/ocr_4_forest_service.py -i ocr_4_forest_service/inputs/forms/site_an_sum_25.jpeg -json ocr_4_forest_service/inputs/jsons/template2.json -temp ocr_4_forest_service/inputs/forms/template2.jpg -p
+if [[ "$version" == "pipeline" ]];
+then   
+    echo "---- You chose to run the pipeline."
+    python3 ocr_4_forest_service/ocr_4_forest_service.py -i ocr_4_forest_service/inputs/forms/$input -json ocr_4_forest_service/inputs/jsons/template$number.json -temp ocr_4_forest_service/inputs/forms/template$number.jpg -p
+else
+    echo "---- You chose to run the Google Vision API."
+    python3 ocr_4_forest_service/ocr_4_forest_service.py -i ocr_4_forest_service/inputs/forms/$input -json ocr_4_forest_service/inputs/jsons/template$number.json -temp ocr_4_forest_service/inputs/forms/template$number.jpg
+fi
+
+
 
 if [ $? -eq 0 ] 
 then 
