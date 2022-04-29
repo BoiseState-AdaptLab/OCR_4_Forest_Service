@@ -25,12 +25,17 @@ def open_file(file_name):
 def get_data(file_path, field_name):
 
     data = open_file(file_path)
+    guess_list = None
 
     for dt in data:
         if dt == field_name:
             print(field_name, ": ", data[dt]['Full text']) # <-- if you want to know the accuracy percentage of the guess, 
                                                             #     print data[dt]['Block confidence']
             guess_list =  data[dt]['Full text']
+        
+    if guess_list is None:
+        # print("$$$$$$$$$$$$$$$ We got in here")
+        return 'null'
     
     return create_word(guess_list)
 
@@ -102,7 +107,7 @@ def get_location(file_path):
 def get_elevation(file_path):
     return get_data(file_path, 'ELEVATION')
 
-def report_data(file_path):
+def report_data(file_path): # <-- this function is called from create_report.py in the database repo. 
 
     return (get_writeup(file_path), get_photo(file_path), get_forest(file_path), get_ranger_dist(file_path),
     get_allotment(file_path), get_examiner(file_path), get_date(file_path), get_transect(file_path), get_plot_size(file_path),

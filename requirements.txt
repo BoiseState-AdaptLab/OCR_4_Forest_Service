@@ -1,8 +1,10 @@
 opencv-python
+google
+protobuf
+google-cloud
+google-cloud-vision
 matplotlib
 imutils
 scikit-image
-google-cloud
-google-cloud-vision
 pandas
 tensorflow==2.5.0
