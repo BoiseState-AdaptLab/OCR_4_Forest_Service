@@ -1,0 +1,1 @@
+insert into report (writeup_no, photo_no, forest, ranger_district, allotment, examiner, date, transect_no, plot_size, plot_interval, type_designation, livestock, slope, aspect, location, elevation) values ('51-d','esh-3-239','sawtooth','D5','blueridge','patton','7/5/768','/of '3','','ich','$5','sheep','35','null','ridge above slick ear creep k','7200')
