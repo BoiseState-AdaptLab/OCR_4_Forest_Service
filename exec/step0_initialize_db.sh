@@ -5,7 +5,8 @@
 echo "-- Started server"
 
 # run sql file to create all tables
-./../tools/bin/psql -U flociaglia -d postgres -f db/sql-scripts/ForestServiceDatabaseINIT.sql
+# Note: must use personal username
+./../tools/bin/psql -U kdoster -d postgres -f db/sql-scripts/ForestServiceDatabaseINIT.sql
 echo "-- Report table and others created"
 
 # run SQLAlchemy scripts to create and populate validation tables

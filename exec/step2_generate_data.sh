@@ -65,20 +65,20 @@ sh ./build.sh -i $input -v $version -n $number
 python3 db/orm_scripts/create_report.py 
 
 # connect and query the database
-./../tools/postgresql-install/bin/psql -U flociaglia forestservicedb < queries/insert_report.txt
+./../tools/bin/psql -U kdoster forestservicedb < queries/insert_report.txt
 echo "-- Inserted new values in report table"
 
 # connect and query the database
-# ./../tools/postgresql-install/bin/psql -U flociaglia forestservicedb < ../validation_tables.txt
+# ./../tools/bin/psql -U kdoster forestservicedb < ../validation_tables.txt
 # echo "-- Connected to the forestservicedb"
 
 # query the report table
-# ./../tools/postgresql-install/bin/psql -U flociaglia forestservicedb < ../select_report.txt
+# ./../tools/bin/psql -U kdoster forestservicedb < ../select_report.txt
 
-# isert entire report data
-# ./../tools/postgresql-install/bin/psql -U flociaglia forestservicedb < ../insert_report.txt
+# insert entire report data
+# ./../tools/bin/psql -U kdoster forestservicedb < ../insert_report.txt
 # echo "-- Inserted values in report table"
 
 # query the report table
 echo "-- This is the current table:"
-./../tools/postgresql-install/bin/psql -U flociaglia forestservicedb < queries/select_report.txt
+./../tools/bin/psql -U kdoster forestservicedb < queries/select_report.txt
