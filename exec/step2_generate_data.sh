@@ -56,7 +56,7 @@ do
 done
 
 echo "Parsed the args"
-sh ./build.sh -i $input -v $version -n $number
+bash ./build.sh -i $input -v $version -n $number
 
 
 

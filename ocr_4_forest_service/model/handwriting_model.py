@@ -78,7 +78,7 @@ def run_model():
 
 
 def predict_classes(test_x, model):
-    return model.predict_classes(test_x) 
+    return np.argmax(model.predict(test_x), axis=-1) 
 
 
 def single_models(final_model_prediction, test_y,mapp, matchings):
