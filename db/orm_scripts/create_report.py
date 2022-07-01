@@ -6,7 +6,7 @@ import sys
 import os
 from os import path
 
-sys.path.append(path.abspath('/home/kdoster/OCR_4_Forest_Service/ocr_4_forest_service/src/'))
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..', '..', 'ocr_4_forest_service', 'src')))
 from retrieve_data import report_data
 
 def create_insert_statement():
