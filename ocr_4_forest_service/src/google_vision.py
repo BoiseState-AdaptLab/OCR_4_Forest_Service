@@ -5,7 +5,7 @@ import cv2
 from google.cloud import vision_v1p3beta1 as vision
 
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS']='/home/FLOCIAGLIA/forestservice-331216-d7b2871c2dfe.json' # this needs to be changed to Cathie's account
+os.environ['GOOGLE_APPLICATION_CREDENTIALS']='/home/kdoster/forestocr-dc3b6af58b3a.json'
 
 TOP_FORM = ['WRITEUP NO.', 'PHOTO NO.', 'FOREST', 'RANGER DISTRICT', 'ALLOTMENT', 'EXAMINER', 'DATE', 
             'TRANSECT NO.', 'PLOT SIZE', 'PLOT INTERVAL', 'TYPE DESIGNATION', 'KIND OF LIVESTOCK', 'SLOPE',
